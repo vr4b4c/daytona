@@ -59,6 +59,17 @@ export class ListSandboxesQueryDto {
   limit = 10
 
   @ApiProperty({
+    name: 'id',
+    description: 'Filter by partial ID match',
+    required: false,
+    type: String,
+    example: 'abc123',
+  })
+  @IsOptional()
+  @IsString()
+  id?: string
+
+  @ApiProperty({
     name: 'labels',
     description: 'JSON encoded labels to filter by',
     required: false,

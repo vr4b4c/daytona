@@ -100,6 +100,7 @@ export class WorkspaceController {
     const {
       page,
       limit,
+      id,
       labels,
       includeErroredDeleted: includeErroredDestroyed,
       states,
@@ -122,6 +123,7 @@ export class WorkspaceController {
       page,
       limit,
       {
+        id,
         labels: labels ? JSON.parse(labels) : {},
         includeErroredDestroyed,
         states,

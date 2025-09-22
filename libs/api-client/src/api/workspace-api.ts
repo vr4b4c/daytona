@@ -419,6 +419,7 @@ export const WorkspaceApiAxiosParamCreator = function (configuration?: Configura
      * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
      * @param {number} [page] Page number of the results
      * @param {number} [limit] Number of results per page
+     * @param {string} [id] Filter by partial ID match
      * @param {string} [labels] JSON encoded labels to filter by
      * @param {boolean} [includeErroredDeleted] Include results with errored state and deleted desired state
      * @param {Array<ListWorkspacesDeprecatedStatesEnum>} [states] List of states to filter by
@@ -442,6 +443,7 @@ export const WorkspaceApiAxiosParamCreator = function (configuration?: Configura
       xDaytonaOrganizationID?: string,
       page?: number,
       limit?: number,
+      id?: string,
       labels?: string,
       includeErroredDeleted?: boolean,
       states?: Array<ListWorkspacesDeprecatedStatesEnum>,
@@ -483,6 +485,10 @@ export const WorkspaceApiAxiosParamCreator = function (configuration?: Configura
 
       if (limit !== undefined) {
         localVarQueryParameter['limit'] = limit
+      }
+
+      if (id !== undefined) {
+        localVarQueryParameter['id'] = id
       }
 
       if (labels !== undefined) {
@@ -1107,6 +1113,7 @@ export const WorkspaceApiFp = function (configuration?: Configuration) {
      * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
      * @param {number} [page] Page number of the results
      * @param {number} [limit] Number of results per page
+     * @param {string} [id] Filter by partial ID match
      * @param {string} [labels] JSON encoded labels to filter by
      * @param {boolean} [includeErroredDeleted] Include results with errored state and deleted desired state
      * @param {Array<ListWorkspacesDeprecatedStatesEnum>} [states] List of states to filter by
@@ -1130,6 +1137,7 @@ export const WorkspaceApiFp = function (configuration?: Configuration) {
       xDaytonaOrganizationID?: string,
       page?: number,
       limit?: number,
+      id?: string,
       labels?: string,
       includeErroredDeleted?: boolean,
       states?: Array<ListWorkspacesDeprecatedStatesEnum>,
@@ -1151,6 +1159,7 @@ export const WorkspaceApiFp = function (configuration?: Configuration) {
         xDaytonaOrganizationID,
         page,
         limit,
+        id,
         labels,
         includeErroredDeleted,
         states,
@@ -1522,6 +1531,7 @@ export const WorkspaceApiFactory = function (configuration?: Configuration, base
      * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
      * @param {number} [page] Page number of the results
      * @param {number} [limit] Number of results per page
+     * @param {string} [id] Filter by partial ID match
      * @param {string} [labels] JSON encoded labels to filter by
      * @param {boolean} [includeErroredDeleted] Include results with errored state and deleted desired state
      * @param {Array<ListWorkspacesDeprecatedStatesEnum>} [states] List of states to filter by
@@ -1545,6 +1555,7 @@ export const WorkspaceApiFactory = function (configuration?: Configuration, base
       xDaytonaOrganizationID?: string,
       page?: number,
       limit?: number,
+      id?: string,
       labels?: string,
       includeErroredDeleted?: boolean,
       states?: Array<ListWorkspacesDeprecatedStatesEnum>,
@@ -1567,6 +1578,7 @@ export const WorkspaceApiFactory = function (configuration?: Configuration, base
           xDaytonaOrganizationID,
           page,
           limit,
+          id,
           labels,
           includeErroredDeleted,
           states,
@@ -1866,6 +1878,7 @@ export class WorkspaceApi extends BaseAPI {
    * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
    * @param {number} [page] Page number of the results
    * @param {number} [limit] Number of results per page
+   * @param {string} [id] Filter by partial ID match
    * @param {string} [labels] JSON encoded labels to filter by
    * @param {boolean} [includeErroredDeleted] Include results with errored state and deleted desired state
    * @param {Array<ListWorkspacesDeprecatedStatesEnum>} [states] List of states to filter by
@@ -1890,6 +1903,7 @@ export class WorkspaceApi extends BaseAPI {
     xDaytonaOrganizationID?: string,
     page?: number,
     limit?: number,
+    id?: string,
     labels?: string,
     includeErroredDeleted?: boolean,
     states?: Array<ListWorkspacesDeprecatedStatesEnum>,
@@ -1912,6 +1926,7 @@ export class WorkspaceApi extends BaseAPI {
         xDaytonaOrganizationID,
         page,
         limit,
+        id,
         labels,
         includeErroredDeleted,
         states,

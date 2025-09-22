@@ -15,6 +15,7 @@ import {
   MoreThanOrEqual,
   LessThanOrEqual,
   Between,
+  ILike,
 } from 'typeorm'
 import { Sandbox } from '../entities/sandbox.entity'
 import { CreateSandboxDto } from '../dto/create-sandbox.dto'
@@ -565,6 +566,7 @@ export class SandboxService {
     page = 1,
     limit = 10,
     filters?: {
+      id?: string
       labels?: { [key: string]: string }
       includeErroredDestroyed?: boolean
       states?: SandboxState[]
@@ -588,6 +590,7 @@ export class SandboxService {
     const limitNum = Number(limit)
 
     const {
+      id,
       labels,
       includeErroredDestroyed,
       states,
@@ -607,6 +610,7 @@ export class SandboxService {
 
     const baseFindOptions: FindOptionsWhere<Sandbox> = {
       organizationId,
+      ...(id ? { id: ILike(`%${id}%`) } : {}),
       ...(labels ? { labels: JsonContains(labels) } : {}),
       ...(snapshots ? { snapshot: In(snapshots) } : {}),
       ...(regions ? { region: In(regions) } : {}),

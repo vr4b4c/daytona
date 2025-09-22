@@ -1066,6 +1066,7 @@ type WorkspaceAPIListWorkspacesDeprecatedRequest struct {
 	xDaytonaOrganizationID *string
 	page                   *float32
 	limit                  *float32
+	id                     *string
 	labels                 *string
 	includeErroredDeleted  *bool
 	states                 *[]string
@@ -1098,6 +1099,12 @@ func (r WorkspaceAPIListWorkspacesDeprecatedRequest) Page(page float32) Workspac
 // Number of results per page
 func (r WorkspaceAPIListWorkspacesDeprecatedRequest) Limit(limit float32) WorkspaceAPIListWorkspacesDeprecatedRequest {
 	r.limit = &limit
+	return r
+}
+
+// Filter by partial ID match
+func (r WorkspaceAPIListWorkspacesDeprecatedRequest) Id(id string) WorkspaceAPIListWorkspacesDeprecatedRequest {
+	r.id = &id
 	return r
 }
 
@@ -1245,6 +1252,9 @@ func (a *WorkspaceAPIService) ListWorkspacesDeprecatedExecute(r WorkspaceAPIList
 	} else {
 		var defaultValue float32 = 10
 		r.limit = &defaultValue
+	}
+	if r.id != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "id", r.id, "form", "")
 	}
 	if r.labels != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "labels", r.labels, "form", "")

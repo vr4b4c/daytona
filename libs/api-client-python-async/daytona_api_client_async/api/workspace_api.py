@@ -2048,6 +2048,7 @@ class WorkspaceApi:
         x_daytona_organization_id: Annotated[Optional[StrictStr], Field(description="Use with JWT to specify the organization ID")] = None,
         page: Annotated[Optional[Union[Annotated[float, Field(strict=True, ge=1)], Annotated[int, Field(strict=True, ge=1)]]], Field(description="Page number of the results")] = None,
         limit: Annotated[Optional[Union[Annotated[float, Field(le=100, strict=True, ge=1)], Annotated[int, Field(le=100, strict=True, ge=1)]]], Field(description="Number of results per page")] = None,
+        id: Annotated[Optional[StrictStr], Field(description="Filter by partial ID match")] = None,
         labels: Annotated[Optional[StrictStr], Field(description="JSON encoded labels to filter by")] = None,
         include_errored_deleted: Annotated[Optional[StrictBool], Field(description="Include results with errored state and deleted desired state")] = None,
         states: Annotated[Optional[List[StrictStr]], Field(description="List of states to filter by")] = None,
@@ -2085,6 +2086,8 @@ class WorkspaceApi:
         :type page: float
         :param limit: Number of results per page
         :type limit: float
+        :param id: Filter by partial ID match
+        :type id: str
         :param labels: JSON encoded labels to filter by
         :type labels: str
         :param include_errored_deleted: Include results with errored state and deleted desired state
@@ -2142,6 +2145,7 @@ class WorkspaceApi:
             x_daytona_organization_id=x_daytona_organization_id,
             page=page,
             limit=limit,
+            id=id,
             labels=labels,
             include_errored_deleted=include_errored_deleted,
             states=states,
@@ -2183,6 +2187,7 @@ class WorkspaceApi:
         x_daytona_organization_id: Annotated[Optional[StrictStr], Field(description="Use with JWT to specify the organization ID")] = None,
         page: Annotated[Optional[Union[Annotated[float, Field(strict=True, ge=1)], Annotated[int, Field(strict=True, ge=1)]]], Field(description="Page number of the results")] = None,
         limit: Annotated[Optional[Union[Annotated[float, Field(le=100, strict=True, ge=1)], Annotated[int, Field(le=100, strict=True, ge=1)]]], Field(description="Number of results per page")] = None,
+        id: Annotated[Optional[StrictStr], Field(description="Filter by partial ID match")] = None,
         labels: Annotated[Optional[StrictStr], Field(description="JSON encoded labels to filter by")] = None,
         include_errored_deleted: Annotated[Optional[StrictBool], Field(description="Include results with errored state and deleted desired state")] = None,
         states: Annotated[Optional[List[StrictStr]], Field(description="List of states to filter by")] = None,
@@ -2220,6 +2225,8 @@ class WorkspaceApi:
         :type page: float
         :param limit: Number of results per page
         :type limit: float
+        :param id: Filter by partial ID match
+        :type id: str
         :param labels: JSON encoded labels to filter by
         :type labels: str
         :param include_errored_deleted: Include results with errored state and deleted desired state
@@ -2277,6 +2284,7 @@ class WorkspaceApi:
             x_daytona_organization_id=x_daytona_organization_id,
             page=page,
             limit=limit,
+            id=id,
             labels=labels,
             include_errored_deleted=include_errored_deleted,
             states=states,
@@ -2318,6 +2326,7 @@ class WorkspaceApi:
         x_daytona_organization_id: Annotated[Optional[StrictStr], Field(description="Use with JWT to specify the organization ID")] = None,
         page: Annotated[Optional[Union[Annotated[float, Field(strict=True, ge=1)], Annotated[int, Field(strict=True, ge=1)]]], Field(description="Page number of the results")] = None,
         limit: Annotated[Optional[Union[Annotated[float, Field(le=100, strict=True, ge=1)], Annotated[int, Field(le=100, strict=True, ge=1)]]], Field(description="Number of results per page")] = None,
+        id: Annotated[Optional[StrictStr], Field(description="Filter by partial ID match")] = None,
         labels: Annotated[Optional[StrictStr], Field(description="JSON encoded labels to filter by")] = None,
         include_errored_deleted: Annotated[Optional[StrictBool], Field(description="Include results with errored state and deleted desired state")] = None,
         states: Annotated[Optional[List[StrictStr]], Field(description="List of states to filter by")] = None,
@@ -2355,6 +2364,8 @@ class WorkspaceApi:
         :type page: float
         :param limit: Number of results per page
         :type limit: float
+        :param id: Filter by partial ID match
+        :type id: str
         :param labels: JSON encoded labels to filter by
         :type labels: str
         :param include_errored_deleted: Include results with errored state and deleted desired state
@@ -2412,6 +2423,7 @@ class WorkspaceApi:
             x_daytona_organization_id=x_daytona_organization_id,
             page=page,
             limit=limit,
+            id=id,
             labels=labels,
             include_errored_deleted=include_errored_deleted,
             states=states,
@@ -2448,6 +2460,7 @@ class WorkspaceApi:
         x_daytona_organization_id,
         page,
         limit,
+        id,
         labels,
         include_errored_deleted,
         states,
@@ -2495,6 +2508,10 @@ class WorkspaceApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if id is not None:
+            
+            _query_params.append(('id', id))
             
         if labels is not None:
             
