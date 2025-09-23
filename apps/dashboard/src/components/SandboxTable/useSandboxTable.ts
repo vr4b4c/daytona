@@ -5,19 +5,23 @@
 
 import { Sandbox } from '@daytonaio/api-client'
 import {
-  ColumnFiltersState,
-  SortingState,
   useReactTable,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
 } from '@tanstack/react-table'
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { FacetedFilterOption } from './types'
 import { getColumns } from './columns'
+import {
+  SandboxFilters,
+  SandboxSorting,
+  convertApiSortingToTableSorting,
+  convertApiFiltersToTableFilters,
+  convertTableSortingToApiSorting,
+  convertTableFiltersToApiFilters,
+} from './types'
 
 interface UseSandboxTableProps {
   data: Sandbox[]
@@ -38,6 +42,10 @@ interface UseSandboxTableProps {
   }
   pageCount: number
   onPaginationChange: (pagination: { pageIndex: number; pageSize: number }) => void
+  sorting: SandboxSorting
+  onSortingChange: (sorting: SandboxSorting) => void
+  filters: SandboxFilters
+  onFiltersChange: (filters: SandboxFilters) => void
 }
 
 export function useSandboxTable({
@@ -56,15 +64,16 @@ export function useSandboxTable({
   pagination,
   pageCount,
   onPaginationChange,
+  sorting,
+  onSortingChange,
+  filters,
+  onFiltersChange,
 }: UseSandboxTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: 'createdAt',
-      desc: true,
-    },
-  ])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  // Convert API sorting and filters to table format for internal use
+  const tableSorting = useMemo(() => convertApiSortingToTableSorting(sorting), [sorting])
+  const tableFilters = useMemo(() => convertApiFiltersToTableFilters(filters), [filters])
 
+  // TODO: empty at first, key value inputs added by user
   const labelOptions: FacetedFilterOption[] = useMemo(() => {
     const labels = new Set<string>()
     data.forEach((sandbox) => {
@@ -75,6 +84,7 @@ export function useSandboxTable({
     return Array.from(labels).map((label) => ({ label, value: label }))
   }, [data])
 
+  // TODO: fetched from API
   const regionOptions: FacetedFilterOption[] = useMemo(() => {
     const regions = new Set<string>()
     data.forEach((sandbox) => {
@@ -118,23 +128,31 @@ export function useSandboxTable({
   const table = useReactTable({
     data,
     columns,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (updater) => {
+      const newTableFilters = typeof updater === 'function' ? updater(table.getState().columnFilters) : updater
+      const newApiFilters = convertTableFiltersToApiFilters(newTableFilters)
+      onFiltersChange(newApiFilters)
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: (updater) => {
+      const newTableSorting = typeof updater === 'function' ? updater(table.getState().sorting) : updater
+      const newApiSorting = convertTableSortingToApiSorting(newTableSorting)
+      onSortingChange(newApiSorting)
+    },
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFilteredRowModel: getFilteredRowModel(),
     manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
     pageCount: pageCount,
     onPaginationChange: (updater) => {
       const newPagination = typeof updater === 'function' ? updater(table.getState().pagination) : updater
       onPaginationChange(newPagination)
     },
     state: {
-      sorting,
-      columnFilters,
+      sorting: tableSorting,
+      columnFilters: tableFilters,
       pagination: {
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -151,7 +169,5 @@ export function useSandboxTable({
     table,
     labelOptions,
     regionOptions,
-    sorting,
-    columnFilters,
   }
 }

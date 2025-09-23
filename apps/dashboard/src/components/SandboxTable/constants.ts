@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { SandboxState } from '@daytonaio/api-client'
+import { ListSandboxesOrderEnum, ListSandboxesSortEnum, SandboxState } from '@daytonaio/api-client'
 import { CheckCircle, Circle, AlertTriangle, Timer, Archive } from 'lucide-react'
-import { FacetedFilterOption } from './types'
+import { FacetedFilterOption, SandboxSorting } from './types'
 
 const STATE_PRIORITY_ORDER_ARRAY = [
   SandboxState.STARTED,
@@ -90,4 +90,9 @@ export function getStateLabel(state?: SandboxState): string {
     return 'Unknown'
   }
   return STATE_LABEL_MAPPING[state]
+}
+
+export const DEFAULT_SORTING: SandboxSorting = {
+  field: ListSandboxesSortEnum.UPDATED_AT,
+  direction: ListSandboxesOrderEnum.DESC,
 }

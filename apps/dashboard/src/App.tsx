@@ -47,6 +47,7 @@ import Spending from './pages/Spending'
 import EmailVerify from './pages/EmailVerify'
 import AccountSettings from './pages/AccountSettings'
 import { BillingProvider } from './providers/BillingProvider'
+import { QueryProvider } from './providers/QueryProvider'
 
 // Simple redirection components for external URLs
 const DocsRedirect = () => {
@@ -126,19 +127,21 @@ function App() {
           path={RoutePath.DASHBOARD}
           element={
             <Suspense fallback={<LoadingFallback />}>
-              <ApiProvider>
-                <OrganizationsProvider>
-                  <SelectedOrganizationProvider>
-                    <BillingProvider>
-                      <UserOrganizationInvitationsProvider>
-                        <NotificationSocketProvider>
-                          <Dashboard />
-                        </NotificationSocketProvider>
-                      </UserOrganizationInvitationsProvider>
-                    </BillingProvider>
-                  </SelectedOrganizationProvider>
-                </OrganizationsProvider>
-              </ApiProvider>
+              <QueryProvider>
+                <ApiProvider>
+                  <OrganizationsProvider>
+                    <SelectedOrganizationProvider>
+                      <BillingProvider>
+                        <UserOrganizationInvitationsProvider>
+                          <NotificationSocketProvider>
+                            <Dashboard />
+                          </NotificationSocketProvider>
+                        </UserOrganizationInvitationsProvider>
+                      </BillingProvider>
+                    </SelectedOrganizationProvider>
+                  </OrganizationsProvider>
+                </ApiProvider>
+              </QueryProvider>
             </Suspense>
           }
         >

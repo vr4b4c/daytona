@@ -24,7 +24,7 @@ import { SandboxTableProps } from './types'
 import { useSandboxTable } from './useSandboxTable'
 import { SandboxTableHeader } from './SandboxTableHeader'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
-import { OrganizationRolePermissionsEnum } from '@daytonaio/api-client'
+import { OrganizationRolePermissionsEnum, SandboxState } from '@daytonaio/api-client'
 import { cn } from '@/lib/utils'
 import { Container, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -52,6 +52,10 @@ export function SandboxTable({
   pagination,
   pageCount,
   onPaginationChange,
+  sorting,
+  onSortingChange,
+  filters,
+  onFiltersChange,
 }: SandboxTableProps) {
   const navigate = useNavigate()
   const { authenticatedUserHasPermission } = useSelectedOrganization()
@@ -75,6 +79,10 @@ export function SandboxTable({
     pagination,
     pageCount,
     onPaginationChange,
+    sorting,
+    onSortingChange,
+    filters,
+    onFiltersChange,
   })
 
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
@@ -141,7 +149,7 @@ export function SandboxTable({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className={`${
-                  loadingSandboxes[row.original.id]
+                  loadingSandboxes[row.original.id] || row.original.state === SandboxState.DESTROYED
                     ? 'opacity-80 pointer-events-none'
                     : '[&:hover>*:nth-child(2)]:underline'
                 } ${
