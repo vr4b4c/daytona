@@ -157,6 +157,20 @@ func main() {
 		SSHGatewayService: sshGatewayService,
 	})
 
+	garbageCleanerService := services.NewGarbageCleanerService(services.GarbageCleanerServiceConfig{
+		ApiBaseUrl:         cfg.ServerUrl,
+		ApiToken:           cfg.ApiToken,
+		Domain:             cfg.RunnerDomain,
+		ExcludeSandboxes:   cfg.GarbageCleanerExcludeSandboxes,
+		ExcludeSnapshots:   cfg.GarbageCleanerExcludeSnapshots,
+		ExcludeAge:         cfg.GarbageCleanerExcludeAge,
+		ThresholdSandboxes: cfg.GarbageCleanerThresholdSandboxes,
+		ThresholdSnapshots: cfg.GarbageCleanerThresholdSnapshots,
+		Interval:           cfg.GarbageCleanerInterval, // TODO: check if this is correct
+		DockerClient:       dockerClient,
+	})
+	garbageCleanerService.Run(ctx)
+
 	apiServerErrChan := make(chan error)
 
 	go func() {

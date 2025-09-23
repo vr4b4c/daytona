@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/kelseyhightower/envconfig"
@@ -15,6 +16,7 @@ import (
 
 type Config struct {
 	ServerUrl              string `envconfig:"SERVER_URL" validate:"required"`
+	RunnerDomain           string `envconfig:"RUNNER_DOMAIN" validate:"required"`
 	ApiToken               string `envconfig:"API_TOKEN" validate:"required"`
 	ApiPort                int    `envconfig:"API_PORT"`
 	TLSCertFile            string `envconfig:"TLS_CERT_FILE"`
@@ -31,6 +33,15 @@ type Config struct {
 	AWSSecretAccessKey     string `envconfig:"AWS_SECRET_ACCESS_KEY"`
 	AWSDefaultBucket       string `envconfig:"AWS_DEFAULT_BUCKET"`
 	ResourceLimitsDisabled bool   `envconfig:"RESOURCE_LIMITS_DISABLED"`
+
+	// TODO: Garbage cleaner config CHECK IF CORRECT
+
+	GarbageCleanerExcludeSandboxes   string        `envconfig:"GARBAGE_CLEANER_EXCLUDE_SANDBOXES"`
+	GarbageCleanerExcludeSnapshots   string        `envconfig:"GARBAGE_CLEANER_EXCLUDE_SNAPSHOTS"`
+	GarbageCleanerExcludeAge         string        `envconfig:"GARBAGE_CLEANER_EXCLUDE_AGE"`
+	GarbageCleanerInterval           time.Duration `envconfig:"GARBAGE_CLEANER_INTERVAL"` // TODO: check if this is correct
+	GarbageCleanerThresholdSandboxes int           `envconfig:"GARBAGE_CLEANER_THRESHOLD_SANDBOXES"`
+	GarbageCleanerThresholdSnapshots int           `envconfig:"GARBAGE_CLEANER_THRESHOLD_SNAPSHOTS"`
 }
 
 var DEFAULT_API_PORT int = 8080
