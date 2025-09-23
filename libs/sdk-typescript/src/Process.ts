@@ -11,6 +11,8 @@ import {
   SessionExecuteResponse as ApiSessionExecuteResponse,
   PortPreviewUrl,
   ToolboxApi,
+  PTYSessionInfo,
+  PTYCreateRequest,
 } from '@daytonaio/api-client'
 import { SandboxCodeToolbox } from './Sandbox'
 import { ExecuteResponse } from './types/ExecuteResponse'
@@ -19,6 +21,8 @@ import { stdDemuxStream } from './utils/Stream'
 import { Buffer } from 'buffer'
 import WebSocket from 'isomorphic-ws'
 import { RUNTIME, Runtime } from './utils/Runtime'
+import { PTYHandle } from './PTYHandle'
+import { PTYCreateOptions, PTYConnectOptions } from './types/PTY'
 
 // 3-byte multiplexing markers inserted by the shell labelers
 export const STDOUT_PREFIX_BYTES = new Uint8Array([0x01, 0x01, 0x01])
@@ -381,20 +385,7 @@ export class Process {
     const previewLink = await this.getPreviewLink(2280)
     const url = `${previewLink.url.replace(/^http/, 'ws')}/process/session/${sessionId}/command/${commandId}/logs?follow=true`
 
-    let ws: WebSocket
-    if (RUNTIME === Runtime.BROWSER) {
-      ws = new WebSocket(
-        url + '&DAYTONA_SANDBOX_AUTH_KEY=' + previewLink.token,
-        `X-Daytona-SDK-Version~${this.clientConfig.baseOptions.headers['X-Daytona-SDK-Version']}`,
-      )
-    } else {
-      ws = new WebSocket(url, {
-        headers: {
-          ...this.clientConfig.baseOptions.headers,
-          'X-Daytona-Preview-Token': previewLink.token,
-        },
-      })
-    }
+    const ws = createWebSocket(url, previewLink.token, this.clientConfig.baseOptions?.headers || {})
 
     await stdDemuxStream(ws, onStdout, onStderr)
   }
@@ -430,6 +421,131 @@ export class Process {
    */
   public async deleteSession(sessionId: string): Promise<void> {
     await this.toolboxApi.deleteSession(this.sandboxId, sessionId)
+  }
+
+  /**
+   * Create a new PTY (pseudo-terminal) session.
+   *
+   * @param {PTYCreateOptions} options - Options for creating the PTY session
+   * @returns {Promise<PTYHandle>} PTY handle for managing the session
+   *
+   * @example
+   * // Create a PTY session with custom shell
+   * const ptyHandle = await process.createPTY({
+   *   command: ['/bin/zsh'],
+   *   workDir: '/workspace',
+   *   env: { TERM: 'xterm-256color' },
+   *   cols: 120,
+   *   rows: 30,
+   *   onData: (data) => {
+   *     process.stdout.write(data);
+   *   },
+   * });
+   *
+   * await ptyHandle.sendInput('ls -la\n');
+   */
+  public async createPTY(options?: PTYCreateOptions & PTYConnectOptions): Promise<PTYHandle> {
+    const request: PTYCreateRequest = {
+      id: options.id,
+      command: options.command,
+      workDir: options.workDir,
+      env: options.env,
+      cols: options.cols,
+      rows: options.rows,
+    }
+
+    try {
+      const response = await this.toolboxApi.createPTYSession(this.sandboxId, request)
+      const handle = await this.connectPTY(response.data.sessionId, options)
+      await handle.waitForConnection()
+      return handle
+    } catch (error) {
+      throw new Error(`Failed to create PTY session: ${error}`)
+    }
+  }
+
+  /**
+   * Connect to an existing PTY session.
+   *
+   * @param {string} sessionId - ID of the PTY session to connect to
+   * @param {PTYConnectOptions} options - Options for the connection
+   * @returns {Promise<PTYHandle>} PTY handle for managing the session
+   *
+   * @example
+   * // Connect to a PTY session
+   * const handle = await process.connectPTY(sessionId, {
+   *   onData: (data) => {
+   *     // Handle terminal output
+   *     process.stdout.write(data);
+   *   },
+   *   onExit: (exitCode) => {
+   *     console.log(`PTY exited with code: ${exitCode}`);
+   *   }
+   * });
+   *
+   * await handle.sendInput('ls -la\n');
+   */
+  public async connectPTY(sessionId: string, options?: PTYConnectOptions): Promise<PTYHandle> {
+    try {
+      // Get preview link for WebSocket connection
+      const previewLink = await this.getPreviewLink(2280)
+      const url = `${previewLink.url.replace(/^http/, 'ws')}/process/pty/${sessionId}/connect`
+
+      const ws = createWebSocket(url, previewLink.token, this.clientConfig.baseOptions?.headers || {})
+
+      const handle = new PTYHandle(ws, () => this.killPTYSession(sessionId), options.onData)
+      await handle.waitForConnection()
+      return handle
+    } catch (error) {
+      throw new Error(`Failed to connect to PTY session: ${error}`)
+    }
+  }
+
+  /**
+   * List all active PTY sessions.
+   *
+   * @returns {Promise<PTYSessionInfo[]>} Array of PTY session information
+   *
+   * @example
+   * // List all PTY sessions
+   * const sessions = await process.listPTYSessions();
+   * sessions.forEach(session => {
+   *   console.log(`Session ${session.id}: ${session.command.join(' ')}`);
+   *   console.log(`Active: ${session.active}, Created: ${session.createdAt}`);
+   * });
+   */
+  public async listPTYSessions(): Promise<PTYSessionInfo[]> {
+    return (await this.toolboxApi.listPTYSessions(this.sandboxId)).data.sessions
+  }
+
+  /**
+   * Get information about a specific PTY session.
+   *
+   * @param {string} sessionId - ID of the PTY session
+   * @returns {Promise<PTYSessionInfo>} PTY session information
+   *
+   * @example
+   * // Get PTY session details
+   * const session = await process.getPTYSession('session-123');
+   * console.log(`Command: ${session.command.join(' ')}`);
+   * console.log(`Working Directory: ${session.workDir}`);
+   */
+  public async getPTYSession(sessionId: string): Promise<PTYSessionInfo> {
+    return (await this.toolboxApi.getPTYSession(this.sandboxId, sessionId)).data
+  }
+
+  /**
+   * Delete a PTY session and terminate the associated process.
+   *
+   * @param {string} sessionId - ID of the PTY session to delete
+   * @returns {Promise<void>}
+   *
+   * @example
+   * // Clean up a PTY session
+   * await process.deletePTYSession('session-123');
+   */
+  public async killPTYSession(sessionId: string): Promise<void> {
+    await this.toolboxApi.deletePTYSession(this.sandboxId, sessionId)
   }
 }
 
@@ -538,4 +654,20 @@ function findSubarray(haystack: Uint8Array, needle: Uint8Array): number {
     if (found) return i
   }
   return -1
+}
+
+function createWebSocket(url: string, token: string, headers: Record<string, string>): WebSocket {
+  if (RUNTIME === Runtime.BROWSER) {
+    return new WebSocket(
+      url + '&DAYTONA_SANDBOX_AUTH_KEY=' + token,
+      `X-Daytona-SDK-Version~${headers['X-Daytona-SDK-Version']}`,
+    )
+  } else {
+    return new WebSocket(url, {
+      headers: {
+        ...headers,
+        'X-Daytona-Preview-Token': token,
+      },
+    })
+  }
 }

@@ -110,6 +110,14 @@ import type { MouseScrollRequest } from '../models'
 // @ts-ignore
 import type { MouseScrollResponse } from '../models'
 // @ts-ignore
+import type { PTYCreateRequest } from '../models'
+// @ts-ignore
+import type { PTYCreateResponse } from '../models'
+// @ts-ignore
+import type { PTYListResponse } from '../models'
+// @ts-ignore
+import type { PTYSessionInfo } from '../models'
+// @ts-ignore
 import type { ProcessErrorsResponse } from '../models'
 // @ts-ignore
 import type { ProcessLogsResponse } from '../models'
@@ -199,6 +207,57 @@ export const ToolboxApiAxiosParamCreator = function (configuration?: Configurati
       }
     },
     /**
+     * Upgrade HTTP connection to WebSocket for real-time PTY interaction
+     * @summary Connect to PTY session via WebSocket
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    connectPTYSession: async (
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'sandboxId' is not null or undefined
+      assertParamExists('connectPTYSession', 'sandboxId', sandboxId)
+      // verify required parameter 'sessionId' is not null or undefined
+      assertParamExists('connectPTYSession', 'sessionId', sessionId)
+      const localVarPath = `/toolbox/{sandboxId}/toolbox/process/pty/{sessionId}/connect`
+        .replace(`{${'sandboxId'}}`, encodeURIComponent(String(sandboxId)))
+        .replace(`{${'sessionId'}}`, encodeURIComponent(String(sessionId)))
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
+      let baseOptions
+      if (configuration) {
+        baseOptions = configuration.baseOptions
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options }
+      const localVarHeaderParameter = {} as any
+      const localVarQueryParameter = {} as any
+
+      // authentication bearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+      // authentication oauth2 required
+
+      if (xDaytonaOrganizationID != null) {
+        localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter)
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      }
+    },
+    /**
      * Create folder inside sandbox
      * @summary Create folder
      * @param {string} sandboxId
@@ -256,6 +315,61 @@ export const ToolboxApiAxiosParamCreator = function (configuration?: Configurati
       setSearchParams(localVarUrlObj, localVarQueryParameter)
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      }
+    },
+    /**
+     * Create a new PTY session in the sandbox
+     * @summary Create PTY session
+     * @param {string} sandboxId
+     * @param {PTYCreateRequest} pTYCreateRequest
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createPTYSession: async (
+      sandboxId: string,
+      pTYCreateRequest: PTYCreateRequest,
+      xDaytonaOrganizationID?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'sandboxId' is not null or undefined
+      assertParamExists('createPTYSession', 'sandboxId', sandboxId)
+      // verify required parameter 'pTYCreateRequest' is not null or undefined
+      assertParamExists('createPTYSession', 'pTYCreateRequest', pTYCreateRequest)
+      const localVarPath = `/toolbox/{sandboxId}/toolbox/process/pty`.replace(
+        `{${'sandboxId'}}`,
+        encodeURIComponent(String(sandboxId)),
+      )
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
+      let baseOptions
+      if (configuration) {
+        baseOptions = configuration.baseOptions
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options }
+      const localVarHeaderParameter = {} as any
+      const localVarQueryParameter = {} as any
+
+      // authentication bearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+      // authentication oauth2 required
+
+      localVarHeaderParameter['Content-Type'] = 'application/json'
+
+      if (xDaytonaOrganizationID != null) {
+        localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter)
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+      localVarRequestOptions.data = serializeDataIfNeeded(pTYCreateRequest, localVarRequestOptions, configuration)
 
       return {
         url: toPathString(localVarUrlObj),
@@ -366,6 +480,57 @@ export const ToolboxApiAxiosParamCreator = function (configuration?: Configurati
       if (path !== undefined) {
         localVarQueryParameter['path'] = path
       }
+
+      if (xDaytonaOrganizationID != null) {
+        localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter)
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      }
+    },
+    /**
+     * Delete a PTY session and terminate the associated process
+     * @summary Delete PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deletePTYSession: async (
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'sandboxId' is not null or undefined
+      assertParamExists('deletePTYSession', 'sandboxId', sandboxId)
+      // verify required parameter 'sessionId' is not null or undefined
+      assertParamExists('deletePTYSession', 'sessionId', sessionId)
+      const localVarPath = `/toolbox/{sandboxId}/toolbox/process/pty/{sessionId}`
+        .replace(`{${'sandboxId'}}`, encodeURIComponent(String(sandboxId)))
+        .replace(`{${'sessionId'}}`, encodeURIComponent(String(sessionId)))
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
+      let baseOptions
+      if (configuration) {
+        baseOptions = configuration.baseOptions
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options }
+      const localVarHeaderParameter = {} as any
+      const localVarQueryParameter = {} as any
+
+      // authentication bearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+      // authentication oauth2 required
 
       if (xDaytonaOrganizationID != null) {
         localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
@@ -889,6 +1054,57 @@ export const ToolboxApiAxiosParamCreator = function (configuration?: Configurati
         `{${'sandboxId'}}`,
         encodeURIComponent(String(sandboxId)),
       )
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
+      let baseOptions
+      if (configuration) {
+        baseOptions = configuration.baseOptions
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options }
+      const localVarHeaderParameter = {} as any
+      const localVarQueryParameter = {} as any
+
+      // authentication bearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+      // authentication oauth2 required
+
+      if (xDaytonaOrganizationID != null) {
+        localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter)
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      }
+    },
+    /**
+     * Get PTY session information by ID
+     * @summary Get PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getPTYSession: async (
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'sandboxId' is not null or undefined
+      assertParamExists('getPTYSession', 'sandboxId', sandboxId)
+      // verify required parameter 'sessionId' is not null or undefined
+      assertParamExists('getPTYSession', 'sessionId', sessionId)
+      const localVarPath = `/toolbox/{sandboxId}/toolbox/process/pty/{sessionId}`
+        .replace(`{${'sandboxId'}}`, encodeURIComponent(String(sandboxId)))
+        .replace(`{${'sessionId'}}`, encodeURIComponent(String(sessionId)))
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
       let baseOptions
@@ -1985,6 +2201,54 @@ export const ToolboxApiAxiosParamCreator = function (configuration?: Configurati
       if (path !== undefined) {
         localVarQueryParameter['path'] = path
       }
+
+      if (xDaytonaOrganizationID != null) {
+        localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
+      }
+      setSearchParams(localVarUrlObj, localVarQueryParameter)
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {}
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers }
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      }
+    },
+    /**
+     * List all active PTY sessions in the sandbox
+     * @summary List PTY sessions
+     * @param {string} sandboxId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listPTYSessions: async (
+      sandboxId: string,
+      xDaytonaOrganizationID?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'sandboxId' is not null or undefined
+      assertParamExists('listPTYSessions', 'sandboxId', sandboxId)
+      const localVarPath = `/toolbox/{sandboxId}/toolbox/process/pty`.replace(
+        `{${'sandboxId'}}`,
+        encodeURIComponent(String(sandboxId)),
+      )
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL)
+      let baseOptions
+      if (configuration) {
+        baseOptions = configuration.baseOptions
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options }
+      const localVarHeaderParameter = {} as any
+      const localVarQueryParameter = {} as any
+
+      // authentication bearer required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+      // authentication oauth2 required
 
       if (xDaytonaOrganizationID != null) {
         localVarHeaderParameter['X-Daytona-Organization-ID'] = String(xDaytonaOrganizationID)
@@ -3618,6 +3882,38 @@ export const ToolboxApiFp = function (configuration?: Configuration) {
         )(axios, localVarOperationServerBasePath || basePath)
     },
     /**
+     * Upgrade HTTP connection to WebSocket for real-time PTY interaction
+     * @summary Connect to PTY session via WebSocket
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async connectPTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.connectPTYSession(
+        sandboxId,
+        sessionId,
+        xDaytonaOrganizationID,
+        options,
+      )
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0
+      const localVarOperationServerBasePath =
+        operationServerMap['ToolboxApi.connectPTYSession']?.[localVarOperationServerIndex]?.url
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath)
+    },
+    /**
      * Create folder inside sandbox
      * @summary Create folder
      * @param {string} sandboxId
@@ -3644,6 +3940,38 @@ export const ToolboxApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0
       const localVarOperationServerBasePath =
         operationServerMap['ToolboxApi.createFolder']?.[localVarOperationServerIndex]?.url
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath)
+    },
+    /**
+     * Create a new PTY session in the sandbox
+     * @summary Create PTY session
+     * @param {string} sandboxId
+     * @param {PTYCreateRequest} pTYCreateRequest
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createPTYSession(
+      sandboxId: string,
+      pTYCreateRequest: PTYCreateRequest,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PTYCreateResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createPTYSession(
+        sandboxId,
+        pTYCreateRequest,
+        xDaytonaOrganizationID,
+        options,
+      )
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0
+      const localVarOperationServerBasePath =
+        operationServerMap['ToolboxApi.createPTYSession']?.[localVarOperationServerIndex]?.url
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3711,6 +4039,38 @@ export const ToolboxApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0
       const localVarOperationServerBasePath =
         operationServerMap['ToolboxApi.deleteFile']?.[localVarOperationServerIndex]?.url
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath)
+    },
+    /**
+     * Delete a PTY session and terminate the associated process
+     * @summary Delete PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deletePTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deletePTYSession(
+        sandboxId,
+        sessionId,
+        xDaytonaOrganizationID,
+        options,
+      )
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0
+      const localVarOperationServerBasePath =
+        operationServerMap['ToolboxApi.deletePTYSession']?.[localVarOperationServerIndex]?.url
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4028,6 +4388,38 @@ export const ToolboxApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0
       const localVarOperationServerBasePath =
         operationServerMap['ToolboxApi.getMousePosition']?.[localVarOperationServerIndex]?.url
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath)
+    },
+    /**
+     * Get PTY session information by ID
+     * @summary Get PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getPTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PTYSessionInfo>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getPTYSession(
+        sandboxId,
+        sessionId,
+        xDaytonaOrganizationID,
+        options,
+      )
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0
+      const localVarOperationServerBasePath =
+        operationServerMap['ToolboxApi.getPTYSession']?.[localVarOperationServerIndex]?.url
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4667,6 +5059,35 @@ export const ToolboxApiFp = function (configuration?: Configuration) {
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0
       const localVarOperationServerBasePath =
         operationServerMap['ToolboxApi.listFiles']?.[localVarOperationServerIndex]?.url
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath)
+    },
+    /**
+     * List all active PTY sessions in the sandbox
+     * @summary List PTY sessions
+     * @param {string} sandboxId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async listPTYSessions(
+      sandboxId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PTYListResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.listPTYSessions(
+        sandboxId,
+        xDaytonaOrganizationID,
+        options,
+      )
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0
+      const localVarOperationServerBasePath =
+        operationServerMap['ToolboxApi.listPTYSessions']?.[localVarOperationServerIndex]?.url
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5590,6 +6011,25 @@ export const ToolboxApiFactory = function (configuration?: Configuration, basePa
         .then((request) => request(axios, basePath))
     },
     /**
+     * Upgrade HTTP connection to WebSocket for real-time PTY interaction
+     * @summary Connect to PTY session via WebSocket
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    connectPTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .connectPTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
+        .then((request) => request(axios, basePath))
+    },
+    /**
      * Create folder inside sandbox
      * @summary Create folder
      * @param {string} sandboxId
@@ -5608,6 +6048,25 @@ export const ToolboxApiFactory = function (configuration?: Configuration, basePa
     ): AxiosPromise<void> {
       return localVarFp
         .createFolder(sandboxId, path, mode, xDaytonaOrganizationID, options)
+        .then((request) => request(axios, basePath))
+    },
+    /**
+     * Create a new PTY session in the sandbox
+     * @summary Create PTY session
+     * @param {string} sandboxId
+     * @param {PTYCreateRequest} pTYCreateRequest
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createPTYSession(
+      sandboxId: string,
+      pTYCreateRequest: PTYCreateRequest,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<PTYCreateResponse> {
+      return localVarFp
+        .createPTYSession(sandboxId, pTYCreateRequest, xDaytonaOrganizationID, options)
         .then((request) => request(axios, basePath))
     },
     /**
@@ -5648,6 +6107,25 @@ export const ToolboxApiFactory = function (configuration?: Configuration, basePa
     ): AxiosPromise<void> {
       return localVarFp
         .deleteFile(sandboxId, path, xDaytonaOrganizationID, recursive, options)
+        .then((request) => request(axios, basePath))
+    },
+    /**
+     * Delete a PTY session and terminate the associated process
+     * @summary Delete PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deletePTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<void> {
+      return localVarFp
+        .deletePTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
         .then((request) => request(axios, basePath))
     },
     /**
@@ -5836,6 +6314,25 @@ export const ToolboxApiFactory = function (configuration?: Configuration, basePa
     ): AxiosPromise<MousePosition> {
       return localVarFp
         .getMousePosition(sandboxId, xDaytonaOrganizationID, options)
+        .then((request) => request(axios, basePath))
+    },
+    /**
+     * Get PTY session information by ID
+     * @summary Get PTY session
+     * @param {string} sandboxId
+     * @param {string} sessionId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getPTYSession(
+      sandboxId: string,
+      sessionId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<PTYSessionInfo> {
+      return localVarFp
+        .getPTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
         .then((request) => request(axios, basePath))
     },
     /**
@@ -6218,6 +6715,23 @@ export const ToolboxApiFactory = function (configuration?: Configuration, basePa
     ): AxiosPromise<Array<FileInfo>> {
       return localVarFp
         .listFiles(sandboxId, xDaytonaOrganizationID, path, options)
+        .then((request) => request(axios, basePath))
+    },
+    /**
+     * List all active PTY sessions in the sandbox
+     * @summary List PTY sessions
+     * @param {string} sandboxId
+     * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    listPTYSessions(
+      sandboxId: string,
+      xDaytonaOrganizationID?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<PTYListResponse> {
+      return localVarFp
+        .listPTYSessions(sandboxId, xDaytonaOrganizationID, options)
         .then((request) => request(axios, basePath))
     },
     /**
@@ -6799,6 +7313,27 @@ export class ToolboxApi extends BaseAPI {
   }
 
   /**
+   * Upgrade HTTP connection to WebSocket for real-time PTY interaction
+   * @summary Connect to PTY session via WebSocket
+   * @param {string} sandboxId
+   * @param {string} sessionId
+   * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ToolboxApi
+   */
+  public connectPTYSession(
+    sandboxId: string,
+    sessionId: string,
+    xDaytonaOrganizationID?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ToolboxApiFp(this.configuration)
+      .connectPTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
+      .then((request) => request(this.axios, this.basePath))
+  }
+
+  /**
    * Create folder inside sandbox
    * @summary Create folder
    * @param {string} sandboxId
@@ -6818,6 +7353,27 @@ export class ToolboxApi extends BaseAPI {
   ) {
     return ToolboxApiFp(this.configuration)
       .createFolder(sandboxId, path, mode, xDaytonaOrganizationID, options)
+      .then((request) => request(this.axios, this.basePath))
+  }
+
+  /**
+   * Create a new PTY session in the sandbox
+   * @summary Create PTY session
+   * @param {string} sandboxId
+   * @param {PTYCreateRequest} pTYCreateRequest
+   * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ToolboxApi
+   */
+  public createPTYSession(
+    sandboxId: string,
+    pTYCreateRequest: PTYCreateRequest,
+    xDaytonaOrganizationID?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ToolboxApiFp(this.configuration)
+      .createPTYSession(sandboxId, pTYCreateRequest, xDaytonaOrganizationID, options)
       .then((request) => request(this.axios, this.basePath))
   }
 
@@ -6862,6 +7418,27 @@ export class ToolboxApi extends BaseAPI {
   ) {
     return ToolboxApiFp(this.configuration)
       .deleteFile(sandboxId, path, xDaytonaOrganizationID, recursive, options)
+      .then((request) => request(this.axios, this.basePath))
+  }
+
+  /**
+   * Delete a PTY session and terminate the associated process
+   * @summary Delete PTY session
+   * @param {string} sandboxId
+   * @param {string} sessionId
+   * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ToolboxApi
+   */
+  public deletePTYSession(
+    sandboxId: string,
+    sessionId: string,
+    xDaytonaOrganizationID?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ToolboxApiFp(this.configuration)
+      .deletePTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
       .then((request) => request(this.axios, this.basePath))
   }
 
@@ -7058,6 +7635,27 @@ export class ToolboxApi extends BaseAPI {
   public getMousePosition(sandboxId: string, xDaytonaOrganizationID?: string, options?: RawAxiosRequestConfig) {
     return ToolboxApiFp(this.configuration)
       .getMousePosition(sandboxId, xDaytonaOrganizationID, options)
+      .then((request) => request(this.axios, this.basePath))
+  }
+
+  /**
+   * Get PTY session information by ID
+   * @summary Get PTY session
+   * @param {string} sandboxId
+   * @param {string} sessionId
+   * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ToolboxApi
+   */
+  public getPTYSession(
+    sandboxId: string,
+    sessionId: string,
+    xDaytonaOrganizationID?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return ToolboxApiFp(this.configuration)
+      .getPTYSession(sandboxId, sessionId, xDaytonaOrganizationID, options)
       .then((request) => request(this.axios, this.basePath))
   }
 
@@ -7467,6 +8065,21 @@ export class ToolboxApi extends BaseAPI {
   public listFiles(sandboxId: string, xDaytonaOrganizationID?: string, path?: string, options?: RawAxiosRequestConfig) {
     return ToolboxApiFp(this.configuration)
       .listFiles(sandboxId, xDaytonaOrganizationID, path, options)
+      .then((request) => request(this.axios, this.basePath))
+  }
+
+  /**
+   * List all active PTY sessions in the sandbox
+   * @summary List PTY sessions
+   * @param {string} sandboxId
+   * @param {string} [xDaytonaOrganizationID] Use with JWT to specify the organization ID
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ToolboxApi
+   */
+  public listPTYSessions(sandboxId: string, xDaytonaOrganizationID?: string, options?: RawAxiosRequestConfig) {
+    return ToolboxApiFp(this.configuration)
+      .listPTYSessions(sandboxId, xDaytonaOrganizationID, options)
       .then((request) => request(this.axios, this.basePath))
   }
 

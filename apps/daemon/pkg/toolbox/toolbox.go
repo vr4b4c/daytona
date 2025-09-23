@@ -22,6 +22,7 @@ import (
 	"github.com/daytonaio/daemon/pkg/toolbox/middlewares"
 	"github.com/daytonaio/daemon/pkg/toolbox/port"
 	"github.com/daytonaio/daemon/pkg/toolbox/process"
+	"github.com/daytonaio/daemon/pkg/toolbox/process/pty"
 	"github.com/daytonaio/daemon/pkg/toolbox/process/session"
 	"github.com/daytonaio/daemon/pkg/toolbox/proxy"
 
@@ -116,6 +117,17 @@ func (s *Server) Start() error {
 			sessionGroup.DELETE("/:sessionId", sessionController.DeleteSession)
 			sessionGroup.GET("/:sessionId/command/:commandId", sessionController.GetSessionCommand)
 			sessionGroup.GET("/:sessionId/command/:commandId/logs", sessionController.GetSessionCommandLogs)
+		}
+
+		// PTY endpoints
+		ptyController := pty.NewPTYController(s.ProjectDir)
+		ptyGroup := processController.Group("/pty")
+		{
+			ptyGroup.GET("", ptyController.ListPTYSessions)
+			ptyGroup.POST("", ptyController.CreatePTYSession)
+			ptyGroup.GET("/:sessionId", ptyController.GetPTYSession)
+			ptyGroup.DELETE("/:sessionId", ptyController.DeletePTYSession)
+			ptyGroup.GET("/:sessionId/connect", ptyController.ConnectPTYSession)
 		}
 	}
 
