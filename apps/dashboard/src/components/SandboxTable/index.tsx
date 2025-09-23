@@ -34,8 +34,8 @@ import { useSidebar } from '@/components/ui/sidebar'
 
 export function SandboxTable({
   data,
-  loadingSandboxes,
-  transitioningSandboxes,
+  sandboxIsLoading,
+  sandboxStateIsTransitioning,
   loading,
   snapshots,
   loadingSnapshots,
@@ -65,7 +65,7 @@ export function SandboxTable({
 
   const { table, labelOptions, regionOptions } = useSandboxTable({
     data,
-    loadingSandboxes,
+    sandboxIsLoading,
     writePermitted,
     deletePermitted,
     handleStart,
@@ -149,11 +149,11 @@ export function SandboxTable({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 className={`${
-                  loadingSandboxes[row.original.id] || row.original.state === SandboxState.DESTROYED
+                  sandboxIsLoading[row.original.id] || row.original.state === SandboxState.DESTROYED
                     ? 'opacity-80 pointer-events-none'
                     : '[&:hover>*:nth-child(2)]:underline'
                 } ${
-                  transitioningSandboxes[row.original.id]
+                  sandboxStateIsTransitioning[row.original.id]
                     ? 'bg-muted transition-colors duration-300 animate-pulse'
                     : 'transition-colors duration-300'
                 } ${onRowClick ? 'cursor-pointer' : ''}`}

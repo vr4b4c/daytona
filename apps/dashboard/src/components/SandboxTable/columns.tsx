@@ -49,7 +49,7 @@ interface GetColumnsProps {
   handleArchive: (id: string) => void
   handleVnc: (id: string) => void
   getWebTerminalUrl: (id: string) => Promise<string | null>
-  loadingSandboxes: Record<string, boolean>
+  sandboxIsLoading: Record<string, boolean>
   writePermitted: boolean
   deletePermitted: boolean
   handleCreateSshAccess: (id: string) => void
@@ -63,7 +63,7 @@ export function getColumns({
   handleArchive,
   handleVnc,
   getWebTerminalUrl,
-  loadingSandboxes,
+  sandboxIsLoading,
   writePermitted,
   deletePermitted,
   handleCreateSshAccess,
@@ -84,7 +84,7 @@ export function getColumns({
           checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
           onCheckedChange={(value) => {
             for (const row of table.getRowModel().rows) {
-              if (loadingSandboxes[row.original.id]) {
+              if (sandboxIsLoading[row.original.id]) {
                 row.toggleSelected(false)
               } else {
                 row.toggleSelected(!!value)
@@ -266,7 +266,7 @@ export function getColumns({
             sandbox={row.original}
             writePermitted={writePermitted}
             deletePermitted={deletePermitted}
-            isLoading={loadingSandboxes[row.original.id]}
+            isLoading={sandboxIsLoading[row.original.id]}
             onStart={handleStart}
             onStop={handleStop}
             onDelete={handleDelete}

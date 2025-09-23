@@ -106,7 +106,7 @@ const Sandboxes: React.FC = () => {
 
   const {
     data: sandboxesData,
-    isLoading: loadingSandboxesData,
+    isLoading: sandboxesDataIsLoading,
     error: sandboxesDataError,
   } = useSandboxes(queryKey, queryParams)
 
@@ -175,12 +175,8 @@ const Sandboxes: React.FC = () => {
 
   // Ephemeral Sandbox States
 
-  // TODO: rename to sandboxIsLoading
-  // disable actions
-  const [loadingSandboxes, setLoadingSandboxes] = useState<Record<string, boolean>>({})
-  // TODO: rename to sandboxIsTransitioning
-  // display transition animation
-  const [transitioningSandboxes, setTransitioningSandboxes] = useState<Record<string, boolean>>({})
+  const [sandboxIsLoading, setSandboxIsLoading] = useState<Record<string, boolean>>({})
+  const [sandboxStateIsTransitioning, setSandboxStateIsTransitioning] = useState<Record<string, boolean>>({}) // display transition animation
 
   // Delete Sandbox Dialog
 
@@ -374,8 +370,8 @@ const Sandboxes: React.FC = () => {
   // Sandbox Action Handlers
 
   const handleStart = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
-    setTransitioningSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
+    setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: true }))
 
     const sandboxToStart = sandboxesData?.items.find((s) => s.id === id)
     const previousState = sandboxToStart?.state
@@ -401,16 +397,16 @@ const Sandboxes: React.FC = () => {
       )
       revertSandboxStateOptimisticUpdate(id, previousState)
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
       setTimeout(() => {
-        setTransitioningSandboxes((prev) => ({ ...prev, [id]: false }))
+        setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: false }))
       }, 2000)
     }
   }
 
   const handleStop = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
-    setTransitioningSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
+    setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: true }))
 
     const sandboxToStop = sandboxesData?.items.find((s) => s.id === id)
     const previousState = sandboxToStop?.state
@@ -433,16 +429,16 @@ const Sandboxes: React.FC = () => {
       handleApiError(error, 'Failed to stop sandbox')
       revertSandboxStateOptimisticUpdate(id, previousState)
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
       setTimeout(() => {
-        setTransitioningSandboxes((prev) => ({ ...prev, [id]: false }))
+        setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: false }))
       }, 2000)
     }
   }
 
   const handleDelete = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
-    setTransitioningSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
+    setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: true }))
 
     const sandboxToDelete = sandboxesData?.items.find((s) => s.id === id)
     const previousState = sandboxToDelete?.state
@@ -467,16 +463,16 @@ const Sandboxes: React.FC = () => {
       handleApiError(error, 'Failed to delete sandbox')
       revertSandboxStateOptimisticUpdate(id, previousState)
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
       setTimeout(() => {
-        setTransitioningSandboxes((prev) => ({ ...prev, [id]: false }))
+        setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: false }))
       }, 2000)
     }
   }
 
   const handleBulkDelete = async (ids: string[]) => {
-    setLoadingSandboxes((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: true }), {}) }))
-    setTransitioningSandboxes((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: true }), {}) }))
+    setSandboxIsLoading((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: true }), {}) }))
+    setSandboxStateIsTransitioning((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: true }), {}) }))
 
     await cancelQueryRefetches(queryKey)
 
@@ -505,9 +501,12 @@ const Sandboxes: React.FC = () => {
           break
         }
       } finally {
-        setLoadingSandboxes((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: false }), {}) }))
+        setSandboxIsLoading((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: false }), {}) }))
         setTimeout(() => {
-          setTransitioningSandboxes((prev) => ({ ...prev, ...ids.reduce((acc, id) => ({ ...acc, [id]: false }), {}) }))
+          setSandboxStateIsTransitioning((prev) => ({
+            ...prev,
+            ...ids.reduce((acc, id) => ({ ...acc, [id]: false }), {}),
+          }))
         }, 2000)
       }
     }
@@ -519,8 +518,8 @@ const Sandboxes: React.FC = () => {
   }
 
   const handleArchive = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
-    setTransitioningSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
+    setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: true }))
 
     const sandboxToArchive = sandboxesData?.items.find((s) => s.id === id)
     const previousState = sandboxToArchive?.state
@@ -536,20 +535,20 @@ const Sandboxes: React.FC = () => {
       handleApiError(error, 'Failed to archive sandbox')
       revertSandboxStateOptimisticUpdate(id, previousState)
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
       setTimeout(() => {
-        setTransitioningSandboxes((prev) => ({ ...prev, [id]: false }))
+        setSandboxStateIsTransitioning((prev) => ({ ...prev, [id]: false }))
       }, 2000)
     }
   }
 
   const getPortPreviewUrl = useCallback(
     async (sandboxId: string, port: number): Promise<string> => {
-      setLoadingSandboxes((prev) => ({ ...prev, [sandboxId]: true }))
+      setSandboxIsLoading((prev) => ({ ...prev, [sandboxId]: true }))
       try {
         return (await sandboxApi.getPortPreviewUrl(sandboxId, port, selectedOrganization?.id)).data.url
       } finally {
-        setLoadingSandboxes((prev) => ({ ...prev, [sandboxId]: false }))
+        setSandboxIsLoading((prev) => ({ ...prev, [sandboxId]: false }))
       }
     },
     [sandboxApi, selectedOrganization],
@@ -566,7 +565,7 @@ const Sandboxes: React.FC = () => {
   }
 
   const handleVnc = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
 
     // Notify user immediately that we're checking VNC status
     toast.info('Checking VNC desktop status...')
@@ -645,7 +644,7 @@ const Sandboxes: React.FC = () => {
     } catch (error) {
       handleApiError(error, 'Failed to check VNC status')
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
     }
   }
 
@@ -662,7 +661,7 @@ const Sandboxes: React.FC = () => {
   )
 
   const handleCreateSshAccess = async (id: string) => {
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
     try {
       const response = await sandboxApi.createSshAccess(id, selectedOrganization?.id, sshExpiryMinutes)
       setSshToken(response.data.token)
@@ -672,7 +671,7 @@ const Sandboxes: React.FC = () => {
     } catch (error) {
       handleApiError(error, 'Failed to create SSH access')
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
     }
   }
 
@@ -687,7 +686,7 @@ const Sandboxes: React.FC = () => {
       return
     }
 
-    setLoadingSandboxes((prev) => ({ ...prev, [id]: true }))
+    setSandboxIsLoading((prev) => ({ ...prev, [id]: true }))
     try {
       await sandboxApi.revokeSshAccess(id, selectedOrganization?.id, revokeSshToken)
       setRevokeSshToken('')
@@ -697,7 +696,7 @@ const Sandboxes: React.FC = () => {
     } catch (error) {
       handleApiError(error, 'Failed to revoke SSH access')
     } finally {
-      setLoadingSandboxes((prev) => ({ ...prev, [id]: false }))
+      setSandboxIsLoading((prev) => ({ ...prev, [id]: false }))
     }
   }
 
@@ -752,7 +751,7 @@ const Sandboxes: React.FC = () => {
     <div className="flex flex-col min-h-dvh px-10 py-3">
       <div className="mb-2 h-12 flex items-center justify-between">
         <h1 className="text-2xl font-medium">Sandboxes</h1>
-        {!loadingSandboxesData && (!sandboxesData?.items || sandboxesData.items.length === 0) && (
+        {!sandboxesDataIsLoading && (!sandboxesData?.items || sandboxesData.items.length === 0) && (
           <div className="flex items-center gap-2">
             <Button variant="link" className="text-primary" onClick={() => navigate(RoutePath.ONBOARDING)}>
               Onboarding guide
@@ -767,8 +766,8 @@ const Sandboxes: React.FC = () => {
       </div>
 
       <SandboxTable
-        loadingSandboxes={loadingSandboxes}
-        transitioningSandboxes={transitioningSandboxes}
+        sandboxIsLoading={sandboxIsLoading}
+        sandboxStateIsTransitioning={sandboxStateIsTransitioning}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDelete={(id: string) => {
@@ -782,7 +781,7 @@ const Sandboxes: React.FC = () => {
         handleCreateSshAccess={openCreateSshDialog}
         handleRevokeSshAccess={openRevokeSshDialog}
         data={sandboxesData?.items || []}
-        loading={loadingSandboxesData}
+        loading={sandboxesDataIsLoading}
         snapshots={snapshots}
         loadingSnapshots={loadingSnapshots}
         onRowClick={(sandbox: Sandbox) => {
@@ -823,9 +822,9 @@ const Sandboxes: React.FC = () => {
               <AlertDialogAction
                 className={buttonVariants({ variant: 'destructive' })}
                 onClick={() => handleDelete(sandboxToDelete)}
-                disabled={loadingSandboxes[sandboxToDelete]}
+                disabled={sandboxIsLoading[sandboxToDelete]}
               >
-                {loadingSandboxes[sandboxToDelete] ? 'Deleting...' : 'Delete'}
+                {sandboxIsLoading[sandboxToDelete] ? 'Deleting...' : 'Delete'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -956,7 +955,7 @@ const Sandboxes: React.FC = () => {
         sandbox={selectedSandbox}
         open={showSandboxDetails}
         onOpenChange={setShowSandboxDetails}
-        loadingSandboxes={loadingSandboxes}
+        sandboxIsLoading={sandboxIsLoading}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDelete={(id) => {

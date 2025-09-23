@@ -25,7 +25,7 @@ import {
 
 interface UseSandboxTableProps {
   data: Sandbox[]
-  loadingSandboxes: Record<string, boolean>
+  sandboxIsLoading: Record<string, boolean>
   writePermitted: boolean
   deletePermitted: boolean
   handleStart: (id: string) => void
@@ -50,7 +50,7 @@ interface UseSandboxTableProps {
 
 export function useSandboxTable({
   data,
-  loadingSandboxes,
+  sandboxIsLoading,
   writePermitted,
   deletePermitted,
   handleStart,
@@ -104,7 +104,7 @@ export function useSandboxTable({
         handleArchive,
         handleVnc,
         getWebTerminalUrl,
-        loadingSandboxes,
+        sandboxIsLoading,
         writePermitted,
         deletePermitted,
         handleCreateSshAccess,
@@ -117,7 +117,7 @@ export function useSandboxTable({
       handleArchive,
       handleVnc,
       getWebTerminalUrl,
-      loadingSandboxes,
+      sandboxIsLoading,
       writePermitted,
       deletePermitted,
       handleCreateSshAccess,

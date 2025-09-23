@@ -16,8 +16,8 @@ import { DEFAULT_SORTING } from './constants'
 
 export interface SandboxTableProps {
   data: Sandbox[]
-  loadingSandboxes: Record<string, boolean>
-  transitioningSandboxes: Record<string, boolean>
+  sandboxIsLoading: Record<string, boolean>
+  sandboxStateIsTransitioning: Record<string, boolean>
   loading: boolean
   snapshots: SnapshotDto[]
   loadingSnapshots: boolean
