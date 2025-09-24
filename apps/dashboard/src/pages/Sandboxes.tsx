@@ -6,13 +6,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useApi } from '@/hooks/useApi'
 import { OrganizationSuspendedError } from '@/api/errors'
-import {
-  OrganizationUserRoleEnum,
-  Sandbox,
-  SandboxDesiredState,
-  SandboxState,
-  SnapshotDto,
-} from '@daytonaio/api-client'
+import { OrganizationUserRoleEnum, Sandbox, SandboxDesiredState, SandboxState } from '@daytonaio/api-client'
 import { SandboxTable } from '@/components/SandboxTable'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -43,11 +37,12 @@ import { Check, Copy } from 'lucide-react'
 import { QueryKey, useQueryClient } from '@tanstack/react-query'
 import { getSandboxesQueryKey, SandboxQueryParams, useSandboxes } from '@/hooks/useSandboxes'
 import { DEFAULT_SORTING } from '@/components/SandboxTable/constants'
-import { SandboxFilters, SandboxSorting } from '@/components/SandboxTable/types'
+import { SandboxFilters, SandboxSorting, SnapshotFilters } from '@/components/SandboxTable/types'
 import { getRegionsQueryKey, useRegions } from '@/hooks/useRegions'
+import { getSnapshotsQueryKey, SnapshotQueryParams, useSnapshots } from '@/hooks/useSnapshots'
 
 const Sandboxes: React.FC = () => {
-  const { sandboxApi, apiKeyApi, toolboxApi, snapshotApi } = useApi()
+  const { sandboxApi, apiKeyApi, toolboxApi } = useApi()
   const { user } = useAuth()
   const navigate = useNavigate()
   const { notificationSocket } = useNotificationSocket()
@@ -243,35 +238,43 @@ const Sandboxes: React.FC = () => {
   const [sshSandboxId, setSshSandboxId] = useState<string>('')
   const [copied, setCopied] = useState<string | null>(null)
 
-  // TODO: should be react query as well
   // Snapshot Filter
 
-  const [snapshots, setSnapshots] = useState<SnapshotDto[]>([])
-  const [loadingSnapshots, setLoadingSnapshots] = useState(true)
+  const [snapshotFilters, setSnapshotFilters] = useState<SnapshotFilters>({})
 
-  /*
-    TODO:
-      - 10 most recently used or top 10 used
-      - include has more in api return
-  */
-  const fetchSnapshots = useCallback(async () => {
-    if (!selectedOrganization) {
-      return
-    }
-    setLoadingSnapshots(true)
-    try {
-      const response = await snapshotApi.getAllSnapshots(selectedOrganization.id, 100)
-      setSnapshots(response.data.items ?? [])
-    } catch (error) {
-      console.error('Failed to fetch snapshots', error)
-    } finally {
-      setLoadingSnapshots(false)
-    }
-  }, [selectedOrganization, snapshotApi])
+  const handleSnapshotFiltersChange = useCallback((filters: Partial<SnapshotFilters>) => {
+    setSnapshotFilters((prev) => ({ ...prev, ...filters }))
+  }, [])
+
+  const snapshotsQueryParams = useMemo<SnapshotQueryParams>(
+    () => ({
+      page: 1,
+      pageSize: 100,
+      filters: snapshotFilters,
+    }),
+    [snapshotFilters],
+  )
+
+  const snapshotsQueryKey = useMemo<QueryKey>(
+    () => getSnapshotsQueryKey(selectedOrganization?.id, snapshotsQueryParams),
+    [selectedOrganization?.id, snapshotsQueryParams],
+  )
+
+  const {
+    data: snapshotsData,
+    isLoading: snapshotsDataIsLoading,
+    error: snapshotsDataError,
+  } = useSnapshots(snapshotsQueryKey, snapshotsQueryParams)
+
+  const snapshotsDataHasMore = useMemo(() => {
+    return snapshotsData && snapshotsData.totalPages > 1
+  }, [snapshotsData])
 
   useEffect(() => {
-    fetchSnapshots()
-  }, [fetchSnapshots])
+    if (snapshotsDataError) {
+      handleApiError(snapshotsDataError, 'Failed to fetch snapshots')
+    }
+  }, [snapshotsDataError])
 
   // Region Filter
 
@@ -794,8 +797,10 @@ const Sandboxes: React.FC = () => {
         handleRevokeSshAccess={openRevokeSshDialog}
         data={sandboxesData?.items || []}
         loading={sandboxesDataIsLoading}
-        snapshots={snapshots}
-        loadingSnapshots={loadingSnapshots}
+        snapshots={snapshotsData?.items || []}
+        snapshotsDataIsLoading={snapshotsDataIsLoading}
+        snapshotsDataHasMore={snapshotsDataHasMore}
+        onChangeSnapshotSearchValue={(name?: string) => handleSnapshotFiltersChange({ name })}
         regionsData={regionsData || []}
         regionsDataIsLoading={regionsDataIsLoading}
         onRowClick={(sandbox: Sandbox) => {

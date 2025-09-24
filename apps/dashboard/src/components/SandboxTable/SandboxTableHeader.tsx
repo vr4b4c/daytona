@@ -50,7 +50,9 @@ export function SandboxTableHeader({
   labelOptions,
   regionOptions,
   snapshots,
-  loadingSnapshots,
+  snapshotsDataIsLoading,
+  snapshotsDataHasMore,
+  onChangeSnapshotSearchValue,
   regionsDataIsLoading,
 }: SandboxTableHeaderProps) {
   const [open, setOpen] = React.useState(false)
@@ -169,7 +171,9 @@ export function SandboxTableHeader({
                     value={(table.getColumn('snapshot')?.getFilterValue() as string[]) || []}
                     onFilterChange={(value) => table.getColumn('snapshot')?.setFilterValue(value)}
                     snapshots={snapshots}
-                    loadingSnapshots={loadingSnapshots}
+                    isLoading={snapshotsDataIsLoading}
+                    hasMore={snapshotsDataHasMore}
+                    onChangeSnapshotSearchValue={onChangeSnapshotSearchValue}
                   />
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
@@ -253,7 +257,9 @@ export function SandboxTableHeader({
             value={(table.getColumn('snapshot')?.getFilterValue() as string[]) || []}
             onFilterChange={(value) => table.getColumn('snapshot')?.setFilterValue(value)}
             snapshots={snapshots}
-            loadingSnapshots={loadingSnapshots}
+            isLoading={snapshotsDataIsLoading}
+            hasMore={snapshotsDataHasMore}
+            onChangeSnapshotSearchValue={onChangeSnapshotSearchValue}
           />
         )}
 

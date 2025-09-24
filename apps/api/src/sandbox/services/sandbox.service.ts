@@ -62,7 +62,7 @@ import { nanoid } from 'nanoid'
 import { SshAccessValidationDto } from '../dto/ssh-access.dto'
 import { VolumeService } from './volume.service'
 import { PaginatedList } from '../../common/interfaces/paginated-list.interface'
-import { SortField, SortDirection } from '../dto/list-sandboxes-query.dto'
+import { SandboxSortField, SandboxSortDirection } from '../dto/list-sandboxes-query.dto'
 
 const DEFAULT_CPU = 1
 const DEFAULT_MEMORY = 1
@@ -582,8 +582,8 @@ export class SandboxService {
       lastEventBefore?: Date
     },
     sort?: {
-      field?: SortField
-      direction?: SortDirection
+      field?: SandboxSortField
+      direction?: SandboxSortDirection
     },
   ): Promise<PaginatedList<Sandbox>> {
     const pageNum = Number(page)
@@ -667,7 +667,11 @@ export class SandboxService {
     const [items, total] = await this.sandboxRepository.findAndCount({
       where,
       order: {
-        [sortField]: sortDirection,
+        [sortField]: {
+          direction: sortDirection,
+          nulls: 'LAST',
+        },
+        ...(sortField !== SandboxSortField.CREATED_AT && { createdAt: 'DESC' }),
       },
       skip: (pageNum - 1) * limitNum,
       take: limitNum,

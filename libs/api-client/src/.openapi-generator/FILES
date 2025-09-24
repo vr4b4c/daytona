@@ -97,7 +97,7 @@ models/organization-user.ts
 models/organization.ts
 models/paginated-audit-logs.ts
 models/paginated-sandboxes.ts
-models/paginated-snapshots-dto.ts
+models/paginated-snapshots.ts
 models/paginated-workspaces.ts
 models/port-preview-url.ts
 models/position.ts

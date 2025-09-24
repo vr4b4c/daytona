@@ -21,7 +21,9 @@ export interface SandboxTableProps {
   sandboxStateIsTransitioning: Record<string, boolean>
   loading: boolean
   snapshots: SnapshotDto[]
-  loadingSnapshots: boolean
+  snapshotsDataIsLoading: boolean
+  snapshotsDataHasMore?: boolean
+  onChangeSnapshotSearchValue: (name?: string) => void
   regionsData: Region[]
   regionsDataIsLoading: boolean
   handleStart: (id: string) => void
@@ -66,7 +68,9 @@ export interface SandboxTableHeaderProps {
   labelOptions: FacetedFilterOption[]
   regionOptions: FacetedFilterOption[]
   snapshots: SnapshotDto[]
-  loadingSnapshots: boolean
+  snapshotsDataIsLoading: boolean
+  snapshotsDataHasMore?: boolean
+  onChangeSnapshotSearchValue: (name?: string) => void
   regionsDataIsLoading: boolean
 }
 
@@ -316,4 +320,8 @@ export const convertApiFiltersToTableFilters = (filters: SandboxFilters): Column
   }
 
   return columnFilters
+}
+
+export interface SnapshotFilters {
+  name?: string
 }

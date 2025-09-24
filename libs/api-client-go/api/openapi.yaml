@@ -1397,6 +1397,36 @@ paths:
       summary: Create a new sandbox
       tags:
         - sandbox
+  /sandbox/regions:
+    get:
+      operationId: getSandboxRegions
+      parameters:
+        - description: Use with JWT to specify the organization ID
+          explode: false
+          in: header
+          name: X-Daytona-Organization-ID
+          required: false
+          schema:
+            type: string
+          style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Region'
+                type: array
+          description: List of regions where sandboxes have been created
+      security:
+        - bearer: []
+        - oauth2:
+            - openid
+            - profile
+            - email
+      summary: List all regions where sandboxes have been created
+      tags:
+        - sandbox
   /sandbox/{sandboxId}:
     delete:
       operationId: deleteSandbox
@@ -2014,36 +2044,6 @@ paths:
             - profile
             - email
       summary: Validate SSH access for sandbox
-      tags:
-        - sandbox
-  /sandbox/regions:
-    get:
-      operationId: getSandboxRegions
-      parameters:
-        - description: Use with JWT to specify the organization ID
-          explode: false
-          in: header
-          name: X-Daytona-Organization-ID
-          required: false
-          schema:
-            type: string
-          style: simple
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Region'
-                type: array
-          description: List of regions where sandboxes have been created
-      security:
-        - bearer: []
-        - oauth2:
-            - openid
-            - profile
-            - email
-      summary: List all regions where sandboxes have been created
       tags:
         - sandbox
   /runners:
@@ -4824,29 +4824,69 @@ paths:
           schema:
             type: string
           style: simple
-        - description: Number of items per page
-          explode: true
-          in: query
-          name: limit
-          required: false
-          schema:
-            type: number
-          style: form
-        - description: Page number
+        - description: Page number of the results
           explode: true
           in: query
           name: page
           required: false
           schema:
+            default: 1
+            minimum: 1
             type: number
+          style: form
+        - description: Number of results per page
+          explode: true
+          in: query
+          name: limit
+          required: false
+          schema:
+            default: 10
+            maximum: 100
+            minimum: 1
+            type: number
+          style: form
+        - description: Filter by partial name match
+          explode: true
+          in: query
+          name: name
+          required: false
+          schema:
+            example: abc123
+            type: string
+          style: form
+        - description: Field to sort by
+          explode: true
+          in: query
+          name: sort
+          required: false
+          schema:
+            default: lastUsedAt
+            enum:
+              - name
+              - state
+              - lastUsedAt
+              - createdAt
+            type: string
+          style: form
+        - description: Direction to sort by
+          explode: true
+          in: query
+          name: order
+          required: false
+          schema:
+            default: desc
+            enum:
+              - asc
+              - desc
+            type: string
           style: form
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedSnapshotsDto'
-          description: List of all snapshots with pagination
+                $ref: '#/components/schemas/PaginatedSnapshots'
+          description: Paginated list of all snapshots
       security:
         - bearer: []
         - oauth2:
@@ -7981,6 +8021,17 @@ components:
         - total
         - totalPages
       type: object
+    Region:
+      example:
+        name: us
+      properties:
+        name:
+          description: Region name
+          example: us
+          type: string
+      required:
+        - name
+      type: object
     CreateBuildInfo:
       properties:
         dockerfileContent:
@@ -8226,17 +8277,6 @@ components:
       required:
         - sandboxId
         - valid
-      type: object
-    Region:
-      example:
-        name: us
-      properties:
-        name:
-          description: Region name
-          example: us
-          type: string
-      required:
-        - name
       type: object
     CreateRunner:
       example:
@@ -9898,7 +9938,7 @@ components:
         - state
         - updatedAt
       type: object
-    PaginatedSnapshotsDto:
+    PaginatedSnapshots:
       example:
         total: 2.3021358869347655
         totalPages: 9.301444243932576

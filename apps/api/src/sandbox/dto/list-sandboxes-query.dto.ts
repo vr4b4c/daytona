@@ -10,7 +10,7 @@ import { Min, Max } from 'class-validator'
 import { SandboxState } from '../enums/sandbox-state.enum'
 import { ToArray } from '../../common/decorators/to-array.decorator'
 
-export enum SortField {
+export enum SandboxSortField {
   ID = 'id',
   STATE = 'state',
   SNAPSHOT = 'snapshot',
@@ -19,7 +19,7 @@ export enum SortField {
   CREATED_AT = 'createdAt',
 }
 
-export enum SortDirection {
+export enum SandboxSortDirection {
   ASC = 'asc',
   DESC = 'desc',
 }
@@ -240,21 +240,21 @@ export class ListSandboxesQueryDto {
     name: 'sort',
     description: 'Field to sort by',
     required: false,
-    enum: SortField,
-    default: SortField.CREATED_AT,
+    enum: SandboxSortField,
+    default: SandboxSortField.CREATED_AT,
   })
   @IsOptional()
-  @IsEnum(SortField)
-  sort = SortField.CREATED_AT
+  @IsEnum(SandboxSortField)
+  sort = SandboxSortField.CREATED_AT
 
   @ApiProperty({
     name: 'order',
     description: 'Direction to sort by',
     required: false,
-    enum: SortDirection,
-    default: SortDirection.DESC,
+    enum: SandboxSortDirection,
+    default: SandboxSortDirection.DESC,
   })
   @IsOptional()
-  @IsEnum(SortDirection)
-  order = SortDirection.DESC
+  @IsEnum(SandboxSortDirection)
+  order = SandboxSortDirection.DESC
 }

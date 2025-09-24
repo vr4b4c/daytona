@@ -38,7 +38,9 @@ export function SandboxTable({
   sandboxStateIsTransitioning,
   loading,
   snapshots,
-  loadingSnapshots,
+  snapshotsDataIsLoading,
+  snapshotsDataHasMore,
+  onChangeSnapshotSearchValue,
   regionsData,
   regionsDataIsLoading,
   handleStart,
@@ -118,7 +120,9 @@ export function SandboxTable({
         labelOptions={labelOptions}
         regionOptions={regionOptions}
         snapshots={snapshots}
-        loadingSnapshots={loadingSnapshots}
+        snapshotsDataIsLoading={snapshotsDataIsLoading}
+        snapshotsDataHasMore={snapshotsDataHasMore}
+        onChangeSnapshotSearchValue={onChangeSnapshotSearchValue}
         regionsDataIsLoading={regionsLoading}
       />
 
