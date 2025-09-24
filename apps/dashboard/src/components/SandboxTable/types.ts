@@ -65,7 +65,6 @@ export interface SandboxTableActionsProps {
 
 export interface SandboxTableHeaderProps {
   table: Table<Sandbox>
-  labelOptions: FacetedFilterOption[]
   regionOptions: FacetedFilterOption[]
   snapshots: SnapshotDto[]
   snapshotsDataIsLoading: boolean

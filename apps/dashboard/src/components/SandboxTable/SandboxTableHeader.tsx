@@ -47,7 +47,6 @@ const RESOURCE_FILTERS = [
 
 export function SandboxTableHeader({
   table,
-  labelOptions,
   regionOptions,
   snapshots,
   snapshotsDataIsLoading,
@@ -221,7 +220,6 @@ export function SandboxTableHeader({
                   <LabelFilter
                     value={(table.getColumn('labels')?.getFilterValue() as string[]) || []}
                     onFilterChange={(value) => table.getColumn('labels')?.setFilterValue(value)}
-                    options={labelOptions}
                   />
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
@@ -288,7 +286,6 @@ export function SandboxTableHeader({
           <LabelFilterIndicator
             value={(table.getColumn('labels')?.getFilterValue() as string[]) || []}
             onFilterChange={(value) => table.getColumn('labels')?.setFilterValue(value)}
-            options={labelOptions}
           />
         )}
 

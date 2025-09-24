@@ -77,17 +77,6 @@ export function useSandboxTable({
   const tableSorting = useMemo(() => convertApiSortingToTableSorting(sorting), [sorting])
   const tableFilters = useMemo(() => convertApiFiltersToTableFilters(filters), [filters])
 
-  // TODO: empty at first, key value inputs added by user
-  const labelOptions: FacetedFilterOption[] = useMemo(() => {
-    const labels = new Set<string>()
-    data.forEach((sandbox) => {
-      Object.entries(sandbox.labels ?? {}).forEach(([key, value]) => {
-        labels.add(`${key}: ${value}`)
-      })
-    })
-    return Array.from(labels).map((label) => ({ label, value: label }))
-  }, [data])
-
   const regionOptions: FacetedFilterOption[] = useMemo(() => {
     return regionsData.map((region) => ({
       label: region.name,
@@ -167,7 +156,6 @@ export function useSandboxTable({
 
   return {
     table,
-    labelOptions,
     regionOptions,
     regionsDataIsLoading,
   }
