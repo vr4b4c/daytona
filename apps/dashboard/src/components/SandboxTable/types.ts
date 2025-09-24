@@ -10,6 +10,7 @@ import {
   ListSandboxesSortEnum,
   ListSandboxesOrderEnum,
   ListSandboxesStatesEnum,
+  Region,
 } from '@daytonaio/api-client'
 import { Table, SortingState, ColumnFiltersState } from '@tanstack/react-table'
 import { DEFAULT_SORTING } from './constants'
@@ -21,6 +22,8 @@ export interface SandboxTableProps {
   loading: boolean
   snapshots: SnapshotDto[]
   loadingSnapshots: boolean
+  regionsData: Region[]
+  regionsDataIsLoading: boolean
   handleStart: (id: string) => void
   handleStop: (id: string) => void
   handleDelete: (id: string) => void
@@ -64,6 +67,7 @@ export interface SandboxTableHeaderProps {
   regionOptions: FacetedFilterOption[]
   snapshots: SnapshotDto[]
   loadingSnapshots: boolean
+  regionsDataIsLoading: boolean
 }
 
 export interface FacetedFilterOption {

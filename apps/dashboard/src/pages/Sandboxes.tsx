@@ -44,6 +44,7 @@ import { QueryKey, useQueryClient } from '@tanstack/react-query'
 import { getSandboxesQueryKey, SandboxQueryParams, useSandboxes } from '@/hooks/useSandboxes'
 import { DEFAULT_SORTING } from '@/components/SandboxTable/constants'
 import { SandboxFilters, SandboxSorting } from '@/components/SandboxTable/types'
+import { getRegionsQueryKey, useRegions } from '@/hooks/useRegions'
 
 const Sandboxes: React.FC = () => {
   const { sandboxApi, apiKeyApi, toolboxApi, snapshotApi } = useApi()
@@ -272,14 +273,23 @@ const Sandboxes: React.FC = () => {
     fetchSnapshots()
   }, [fetchSnapshots])
 
-  // TODO: should be react query as well
   // Region Filter
 
-  // TODO: get distinct regions from sandboxes created within org
+  const regionsQueryKey = getRegionsQueryKey(selectedOrganization?.id)
 
-  // useEffect(() => {
-  //   fetchRegions()
-  // }, [fetchRegions])
+  const { data: regionsData, isLoading: regionsDataIsLoading, error: regionsDataError } = useRegions(regionsQueryKey)
+
+  useEffect(() => {
+    if (regionsDataError) {
+      handleApiError(regionsDataError, 'Failed to fetch sandboxes regions')
+    }
+  }, [regionsDataError])
+
+  const markAllRegionsQueriesAsStale = useCallback(async () => {
+    queryClient.invalidateQueries({
+      queryKey: regionsQueryKey,
+    })
+  }, [queryClient, regionsQueryKey])
 
   // Subscribe to Sandbox Events
 
@@ -293,6 +303,7 @@ const Sandboxes: React.FC = () => {
       const shouldRefetchActiveQueries = isFirstPage && isDefaultFilters && isDefaultSorting
 
       markAllSandboxQueriesAsStale(shouldRefetchActiveQueries)
+      markAllRegionsQueriesAsStale()
     }
 
     const handleSandboxStateUpdatedEvent = (data: {
@@ -361,6 +372,7 @@ const Sandboxes: React.FC = () => {
     updateSandboxInCache,
     selectedSandbox?.id,
     markAllSandboxQueriesAsStale,
+    markAllRegionsQueriesAsStale,
     paginationParams.pageIndex,
     filters,
     sorting.field,
@@ -784,6 +796,8 @@ const Sandboxes: React.FC = () => {
         loading={sandboxesDataIsLoading}
         snapshots={snapshots}
         loadingSnapshots={loadingSnapshots}
+        regionsData={regionsData || []}
+        regionsDataIsLoading={regionsDataIsLoading}
         onRowClick={(sandbox: Sandbox) => {
           setSelectedSandbox(sandbox)
           setShowSandboxDetails(true)

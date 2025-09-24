@@ -100,6 +100,7 @@ from daytona_api_client.models.process_restart_response import ProcessRestartRes
 from daytona_api_client.models.process_status_response import ProcessStatusResponse
 from daytona_api_client.models.project_dir_response import ProjectDirResponse
 from daytona_api_client.models.range import Range
+from daytona_api_client.models.region import Region
 from daytona_api_client.models.region_screenshot_response import RegionScreenshotResponse
 from daytona_api_client.models.registry_push_access_dto import RegistryPushAccessDto
 from daytona_api_client.models.replace_request import ReplaceRequest

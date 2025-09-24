@@ -39,6 +39,8 @@ export function SandboxTable({
   loading,
   snapshots,
   loadingSnapshots,
+  regionsData,
+  regionsDataIsLoading,
   handleStart,
   handleStop,
   handleDelete,
@@ -63,7 +65,12 @@ export function SandboxTable({
   const deletePermitted = authenticatedUserHasPermission(OrganizationRolePermissionsEnum.DELETE_SANDBOXES)
   const { state: sidebarState } = useSidebar()
 
-  const { table, labelOptions, regionOptions } = useSandboxTable({
+  const {
+    table,
+    labelOptions,
+    regionOptions,
+    regionsDataIsLoading: regionsLoading,
+  } = useSandboxTable({
     data,
     sandboxIsLoading,
     writePermitted,
@@ -83,6 +90,8 @@ export function SandboxTable({
     onSortingChange,
     filters,
     onFiltersChange,
+    regionsData,
+    regionsDataIsLoading,
   })
 
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
@@ -110,6 +119,7 @@ export function SandboxTable({
         regionOptions={regionOptions}
         snapshots={snapshots}
         loadingSnapshots={loadingSnapshots}
+        regionsDataIsLoading={regionsLoading}
       />
 
       <Table className="border-separate border-spacing-0">

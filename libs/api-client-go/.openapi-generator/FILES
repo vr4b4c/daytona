@@ -104,6 +104,7 @@ model_process_restart_response.go
 model_process_status_response.go
 model_project_dir_response.go
 model_range.go
+model_region.go
 model_region_screenshot_response.go
 model_registry_push_access_dto.go
 model_replace_request.go

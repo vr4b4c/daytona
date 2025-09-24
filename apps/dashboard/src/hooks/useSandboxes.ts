@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { keepPreviousData, QueryKey, useQuery } from '@tanstack/react-query'
+import { QueryKey, useQuery } from '@tanstack/react-query'
 import { useApi } from '@/hooks/useApi'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
 import { PaginatedSandboxes } from '@daytonaio/api-client'
@@ -73,6 +73,5 @@ export function useSandboxes(queryKey: QueryKey, params: SandboxQueryParams) {
     enabled: !!selectedOrganization,
     staleTime: 1000 * 30, // 30 seconds
     gcTime: 1000 * 60 * 5, // 5 minutes,
-    placeholderData: keepPreviousData,
   })
 }

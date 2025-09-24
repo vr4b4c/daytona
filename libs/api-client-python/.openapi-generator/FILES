@@ -106,6 +106,7 @@ daytona_api_client/models/process_restart_response.py
 daytona_api_client/models/process_status_response.py
 daytona_api_client/models/project_dir_response.py
 daytona_api_client/models/range.py
+daytona_api_client/models/region.py
 daytona_api_client/models/region_screenshot_response.py
 daytona_api_client/models/registry_push_access_dto.py
 daytona_api_client/models/replace_request.py

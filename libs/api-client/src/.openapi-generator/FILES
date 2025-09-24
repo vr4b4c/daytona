@@ -108,6 +108,7 @@ models/process-status-response.ts
 models/project-dir-response.ts
 models/range.ts
 models/region-screenshot-response.ts
+models/region.ts
 models/registry-push-access-dto.ts
 models/replace-request.ts
 models/replace-result.ts

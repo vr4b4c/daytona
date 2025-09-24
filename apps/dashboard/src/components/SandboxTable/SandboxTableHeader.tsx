@@ -51,6 +51,7 @@ export function SandboxTableHeader({
   regionOptions,
   snapshots,
   loadingSnapshots,
+  regionsDataIsLoading,
 }: SandboxTableHeaderProps) {
   const [open, setOpen] = React.useState(false)
   const currentSort = table.getState().sorting[0]?.id || ''
@@ -184,6 +185,7 @@ export function SandboxTableHeader({
                     value={(table.getColumn('region')?.getFilterValue() as string[]) || []}
                     onFilterChange={(value) => table.getColumn('region')?.setFilterValue(value)}
                     options={regionOptions}
+                    isLoading={regionsDataIsLoading}
                   />
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
@@ -260,6 +262,7 @@ export function SandboxTableHeader({
             value={(table.getColumn('region')?.getFilterValue() as string[]) || []}
             onFilterChange={(value) => table.getColumn('region')?.setFilterValue(value)}
             options={regionOptions}
+            isLoading={regionsDataIsLoading}
           />
         )}
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { Sandbox } from '@daytonaio/api-client'
+import { Sandbox, Region } from '@daytonaio/api-client'
 import {
   useReactTable,
   getCoreRowModel,
@@ -46,6 +46,8 @@ interface UseSandboxTableProps {
   onSortingChange: (sorting: SandboxSorting) => void
   filters: SandboxFilters
   onFiltersChange: (filters: SandboxFilters) => void
+  regionsData: Region[]
+  regionsDataIsLoading: boolean
 }
 
 export function useSandboxTable({
@@ -68,6 +70,8 @@ export function useSandboxTable({
   onSortingChange,
   filters,
   onFiltersChange,
+  regionsData,
+  regionsDataIsLoading,
 }: UseSandboxTableProps) {
   // Convert API sorting and filters to table format for internal use
   const tableSorting = useMemo(() => convertApiSortingToTableSorting(sorting), [sorting])
@@ -84,16 +88,12 @@ export function useSandboxTable({
     return Array.from(labels).map((label) => ({ label, value: label }))
   }, [data])
 
-  // TODO: fetched from API
   const regionOptions: FacetedFilterOption[] = useMemo(() => {
-    const regions = new Set<string>()
-    data.forEach((sandbox) => {
-      if (sandbox.target) {
-        regions.add(sandbox.target)
-      }
-    })
-    return Array.from(regions).map((region) => ({ label: region, value: region }))
-  }, [data])
+    return regionsData.map((region) => ({
+      label: region.name,
+      value: region.name,
+    }))
+  }, [regionsData])
 
   const columns = useMemo(
     () =>
@@ -169,5 +169,6 @@ export function useSandboxTable({
     table,
     labelOptions,
     regionOptions,
+    regionsDataIsLoading,
   }
 }
