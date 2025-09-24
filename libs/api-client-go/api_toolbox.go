@@ -794,6 +794,22 @@ type ToolboxAPI interface {
 	ReplaceInFilesExecute(r ToolboxAPIReplaceInFilesRequest) ([]ReplaceResult, *http.Response, error)
 
 	/*
+	ResizePTYSession Resize PTY session
+
+	Resize a PTY session
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param sandboxId
+	@param sessionId
+	@return ToolboxAPIResizePTYSessionRequest
+	*/
+	ResizePTYSession(ctx context.Context, sandboxId string, sessionId string) ToolboxAPIResizePTYSessionRequest
+
+	// ResizePTYSessionExecute executes the request
+	//  @return PTYSessionInfo
+	ResizePTYSessionExecute(r ToolboxAPIResizePTYSessionRequest) (*PTYSessionInfo, *http.Response, error)
+
+	/*
 	RestartProcess Restart process
 
 	Restart a specific VNC process
@@ -7120,6 +7136,134 @@ func (a *ToolboxAPIService) ReplaceInFilesExecute(r ToolboxAPIReplaceInFilesRequ
 	}
 	// body params
 	localVarPostBody = r.replaceRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ToolboxAPIResizePTYSessionRequest struct {
+	ctx context.Context
+	ApiService ToolboxAPI
+	sandboxId string
+	sessionId string
+	pTYResizeRequest *PTYResizeRequest
+	xDaytonaOrganizationID *string
+}
+
+func (r ToolboxAPIResizePTYSessionRequest) PTYResizeRequest(pTYResizeRequest PTYResizeRequest) ToolboxAPIResizePTYSessionRequest {
+	r.pTYResizeRequest = &pTYResizeRequest
+	return r
+}
+
+// Use with JWT to specify the organization ID
+func (r ToolboxAPIResizePTYSessionRequest) XDaytonaOrganizationID(xDaytonaOrganizationID string) ToolboxAPIResizePTYSessionRequest {
+	r.xDaytonaOrganizationID = &xDaytonaOrganizationID
+	return r
+}
+
+func (r ToolboxAPIResizePTYSessionRequest) Execute() (*PTYSessionInfo, *http.Response, error) {
+	return r.ApiService.ResizePTYSessionExecute(r)
+}
+
+/*
+ResizePTYSession Resize PTY session
+
+Resize a PTY session
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param sandboxId
+ @param sessionId
+ @return ToolboxAPIResizePTYSessionRequest
+*/
+func (a *ToolboxAPIService) ResizePTYSession(ctx context.Context, sandboxId string, sessionId string) ToolboxAPIResizePTYSessionRequest {
+	return ToolboxAPIResizePTYSessionRequest{
+		ApiService: a,
+		ctx: ctx,
+		sandboxId: sandboxId,
+		sessionId: sessionId,
+	}
+}
+
+// Execute executes the request
+//  @return PTYSessionInfo
+func (a *ToolboxAPIService) ResizePTYSessionExecute(r ToolboxAPIResizePTYSessionRequest) (*PTYSessionInfo, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *PTYSessionInfo
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ToolboxAPIService.ResizePTYSession")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/toolbox/{sandboxId}/toolbox/process/pty/{sessionId}/resize"
+	localVarPath = strings.Replace(localVarPath, "{"+"sandboxId"+"}", url.PathEscape(parameterValueToString(r.sandboxId, "sandboxId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"sessionId"+"}", url.PathEscape(parameterValueToString(r.sessionId, "sessionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.pTYResizeRequest == nil {
+		return localVarReturnValue, nil, reportError("pTYResizeRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.xDaytonaOrganizationID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Daytona-Organization-ID", r.xDaytonaOrganizationID, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.pTYResizeRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

@@ -3552,6 +3552,55 @@ paths:
       summary: Get PTY session
       tags:
         - toolbox
+  /toolbox/{sandboxId}/toolbox/process/pty/{sessionId}/resize:
+    post:
+      description: Resize a PTY session
+      operationId: resizePTYSession
+      parameters:
+        - description: Use with JWT to specify the organization ID
+          explode: false
+          in: header
+          name: X-Daytona-Organization-ID
+          required: false
+          schema:
+            type: string
+          style: simple
+        - explode: false
+          in: path
+          name: sandboxId
+          required: true
+          schema:
+            type: string
+          style: simple
+        - explode: false
+          in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PTYResizeRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PTYSessionInfo'
+          description: PTY session resized successfully
+      security:
+        - bearer: []
+        - oauth2:
+            - openid
+            - profile
+            - email
+      summary: Resize PTY session
+      tags:
+        - toolbox
   /toolbox/{sandboxId}/toolbox/process/pty/{sessionId}/connect:
     get:
       description: Upgrade HTTP connection to WebSocket for real-time PTY interaction
@@ -8918,6 +8967,23 @@ components:
           type: string
       required:
         - sessionId
+      type: object
+    PTYResizeRequest:
+      example:
+        rows: 24
+        cols: 80
+      properties:
+        cols:
+          description: Number of terminal columns
+          example: 80
+          type: number
+        rows:
+          description: Number of terminal rows
+          example: 24
+          type: number
+      required:
+        - cols
+        - rows
       type: object
     Position:
       example:

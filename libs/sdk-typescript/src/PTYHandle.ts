@@ -4,8 +4,7 @@
  */
 
 import WebSocket from 'isomorphic-ws'
-import { PTYResult, PTYControlMessage, PTYResizeMessage } from './types/PTY'
-import { DaytonaError } from './errors/DaytonaError'
+import { PTYResult } from './types/PTY'
 
 /**
  * PTY session handle for managing a single PTY session.
@@ -19,6 +18,7 @@ export class PTYHandle {
 
   constructor(
     private readonly ws: WebSocket,
+    private readonly handleResize: (cols: number, rows: number) => Promise<void>,
     private readonly handleKill: () => Promise<void>,
     private readonly onPty: (data: Uint8Array) => void | Promise<void>,
   ) {
@@ -65,7 +65,7 @@ export class PTYHandle {
           resolve()
         } else if (this.ws.readyState === WebSocket.CLOSED || this._error) {
           clearTimeout(timeout)
-          reject(new Error(this._error || 'PTY connection failed'))
+          reject(this._error)
         } else {
           setTimeout(checkConnection, 100)
         }
@@ -99,20 +99,7 @@ export class PTYHandle {
    * Resize the PTY terminal
    */
   async resize(cols: number, rows: number): Promise<void> {
-    if (!this.isConnected()) {
-      throw new Error('PTY is not connected')
-    }
-
-    try {
-      const resizeMessage: PTYResizeMessage = {
-        type: 'resize',
-        data: { cols, rows },
-      }
-      this.ws.send(JSON.stringify(resizeMessage))
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      throw new Error(`Failed to resize PTY: ${errorMessage}`)
-    }
+    await this.handleResize(cols, rows)
   }
 
   /**
@@ -173,21 +160,15 @@ export class PTYHandle {
       this.connected = true
     }
 
-    // Handle WebSocket messages
+    // Handle WebSocket messages - pure data streaming
     const handleMessage = async (event: MessageEvent | any) => {
       try {
         const data = event && typeof event === 'object' && 'data' in event ? event.data : event
 
         if (typeof data === 'string') {
-          // Handle JSON control messages
-          try {
-            const message: PTYControlMessage = JSON.parse(data)
-            await this.handleControlMessage(message)
-          } catch {
-            // Not JSON, treat as regular text output
-            if (this.onPty) {
-              await this.onPty(new TextEncoder().encode(data))
-            }
+          // All text messages are PTY output
+          if (this.onPty) {
+            await this.onPty(new TextEncoder().encode(data))
           }
         } else {
           // Handle binary data (terminal output)
@@ -216,6 +197,7 @@ export class PTYHandle {
 
     // Handle WebSocket errors
     const handleError = async (error: any) => {
+      console.log('handleError', JSON.stringify(error))
       let errorMessage: string
       if (error instanceof Error) {
         errorMessage = error.message
@@ -229,9 +211,32 @@ export class PTYHandle {
       this.connected = false
     }
 
-    // Handle WebSocket close
-    const handleClose = async () => {
+    // Handle WebSocket close - parse structured exit data
+    const handleClose = async (event: CloseEvent | any) => {
       this.connected = false
+
+      // Parse structured exit data from close reason
+      if (event && event.reason) {
+        try {
+          const exitData = JSON.parse(event.reason)
+          if (typeof exitData.exitCode === 'number') {
+            this._exitCode = exitData.exitCode
+            // Store exit reason if provided (undefined for exitCode 0)
+            if (exitData.exitReason) {
+              this._error = exitData.exitReason
+            }
+          }
+        } catch {
+          if (event.code === 1000) {
+            this._exitCode = 0
+          }
+        }
+      }
+
+      // Default to exit code 0 if we can't parse it and it was a normal close
+      if (this._exitCode === undefined && event && event.code === 1000) {
+        this._exitCode = 0
+      }
     }
 
     // Attach event listeners based on WebSocket implementation
@@ -249,26 +254,6 @@ export class PTYHandle {
       this.ws.on('close', handleClose)
     } else {
       throw new Error('Unsupported WebSocket implementation')
-    }
-  }
-
-  private async handleControlMessage(message: PTYControlMessage): Promise<void> {
-    switch (message.type) {
-      case 'exit':
-        this._exitCode = message.data?.code ?? 0
-        this.connected = false
-        // Don't call handleKill() here - the process exited naturally
-        // handleKill() should only be used to manually terminate a running process
-        break
-
-      case 'error':
-        this._error = message.data?.message ?? 'Unknown PTY error'
-        this.connected = false
-        throw new DaytonaError(this._error)
-
-      default:
-        // Unknown control message type, ignore
-        break
     }
   }
 }

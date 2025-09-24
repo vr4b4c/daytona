@@ -108,6 +108,7 @@ models/project-dir-response.ts
 models/ptycreate-request.ts
 models/ptycreate-response.ts
 models/ptylist-response.ts
+models/ptyresize-request.ts
 models/ptysession-info.ts
 models/range.ts
 models/region-screenshot-response.ts

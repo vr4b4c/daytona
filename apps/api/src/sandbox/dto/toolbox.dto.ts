@@ -956,3 +956,18 @@ export class PTYListResponseDto {
   })
   sessions: PTYSessionInfoDto[]
 }
+
+@ApiSchema({ name: 'PTYResizeRequest' })
+export class PTYResizeRequestDto {
+  @ApiProperty({
+    description: 'Number of terminal columns',
+    example: 80,
+  })
+  cols: number
+
+  @ApiProperty({
+    description: 'Number of terminal rows',
+    example: 24,
+  })
+  rows: number
+}

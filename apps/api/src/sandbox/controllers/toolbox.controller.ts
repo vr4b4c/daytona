@@ -85,6 +85,7 @@ import {
   PTYCreateResponseDto,
   PTYSessionInfoDto,
   PTYListResponseDto,
+  PTYResizeRequestDto,
 } from '../dto/toolbox.dto'
 import { ToolboxService } from '../services/toolbox.service'
 import { ContentTypeInterceptor } from '../../common/interceptors/content-type.interceptors'
@@ -1292,6 +1293,30 @@ export class ToolboxController {
   @ApiParam({ name: 'sessionId', type: String, required: true })
   @ApiParam({ name: 'sandboxId', type: String, required: true })
   async getPTYSession(
+    @Request() req: RawBodyRequest<IncomingMessage>,
+    @Res() res: ServerResponse<IncomingMessage>,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    return await this.toolboxProxy(req, res, next)
+  }
+
+  @Post(':sandboxId/toolbox/process/pty/:sessionId/resize')
+  @ApiOperation({
+    summary: 'Resize PTY session',
+    description: 'Resize a PTY session',
+    operationId: 'resizePTYSession',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'PTY session resized successfully',
+    type: PTYSessionInfoDto,
+  })
+  @ApiParam({ name: 'sessionId', type: String, required: true })
+  @ApiParam({ name: 'sandboxId', type: String, required: true })
+  @ApiBody({
+    type: PTYResizeRequestDto,
+  })
+  async resizePTYSession(
     @Request() req: RawBodyRequest<IncomingMessage>,
     @Res() res: ServerResponse<IncomingMessage>,
     @Next() next: NextFunction,

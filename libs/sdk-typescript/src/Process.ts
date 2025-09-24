@@ -23,6 +23,7 @@ import WebSocket from 'isomorphic-ws'
 import { RUNTIME, Runtime } from './utils/Runtime'
 import { PTYHandle } from './PTYHandle'
 import { PTYCreateOptions, PTYConnectOptions } from './types/PTY'
+import { DaytonaError } from './errors/DaytonaError'
 
 // 3-byte multiplexing markers inserted by the shell labelers
 export const STDOUT_PREFIX_BYTES = new Uint8Array([0x01, 0x01, 0x01])
@@ -454,14 +455,9 @@ export class Process {
       rows: options.rows,
     }
 
-    try {
-      const response = await this.toolboxApi.createPTYSession(this.sandboxId, request)
-      const handle = await this.connectPTY(response.data.sessionId, options)
-      await handle.waitForConnection()
-      return handle
-    } catch (error) {
-      throw new Error(`Failed to create PTY session: ${error}`)
-    }
+    const response = await this.toolboxApi.createPTYSession(this.sandboxId, request)
+    const handle = await this.connectPTY(response.data.sessionId, options)
+    return handle
   }
 
   /**
@@ -493,11 +489,25 @@ export class Process {
 
       const ws = createWebSocket(url, previewLink.token, this.clientConfig.baseOptions?.headers || {})
 
-      const handle = new PTYHandle(ws, () => this.killPTYSession(sessionId), options.onData)
+      const handle = new PTYHandle(
+        ws,
+        (cols: number, rows: number) => this.resizePTYSession(sessionId, cols, rows) as unknown as Promise<void>,
+        () => this.killPTYSession(sessionId),
+        options.onData,
+      )
+      console.log('waitForConnection')
       await handle.waitForConnection()
+      console.log('waitForConnection done')
       return handle
     } catch (error) {
-      throw new Error(`Failed to connect to PTY session: ${error}`)
+      console.error(JSON.stringify(error))
+      let errorMessage = error.response?.data?.message || error.response?.data || error.message || String(error)
+      try {
+        errorMessage = JSON.stringify(errorMessage)
+      } catch {
+        errorMessage = String(errorMessage)
+      }
+      throw new DaytonaError(errorMessage)
     }
   }
 
@@ -526,11 +536,11 @@ export class Process {
    *
    * @example
    * // Get PTY session details
-   * const session = await process.getPTYSession('session-123');
+   * const session = await process.getPtySessionInfo('session-123');
    * console.log(`Command: ${session.command.join(' ')}`);
    * console.log(`Working Directory: ${session.workDir}`);
    */
-  public async getPTYSession(sessionId: string): Promise<PTYSessionInfo> {
+  public async getPtySessionInfo(sessionId: string): Promise<PTYSessionInfo> {
     return (await this.toolboxApi.getPTYSession(this.sandboxId, sessionId)).data
   }
 
@@ -546,6 +556,22 @@ export class Process {
    */
   public async killPTYSession(sessionId: string): Promise<void> {
     await this.toolboxApi.deletePTYSession(this.sandboxId, sessionId)
+  }
+
+  /**
+   * Resize a PTY session terminal.
+   *
+   * @param {string} sessionId - ID of the PTY session to resize
+   * @param {number} cols - New number of columns
+   * @param {number} rows - New number of rows
+   * @returns {Promise<void>}
+   *
+   * @example
+   * // Resize a PTY session
+   * await process.resizePTYSession('session-123', 120, 30);
+   */
+  public async resizePTYSession(sessionId: string, cols: number, rows: number): Promise<PTYSessionInfo> {
+    return (await this.toolboxApi.resizePTYSession(this.sandboxId, sessionId, { cols, rows })).data
   }
 }
 

@@ -128,6 +128,7 @@ func (s *Server) Start() error {
 			ptyGroup.GET("/:sessionId", ptyController.GetPTYSession)
 			ptyGroup.DELETE("/:sessionId", ptyController.DeletePTYSession)
 			ptyGroup.GET("/:sessionId/connect", ptyController.ConnectPTYSession)
+			ptyGroup.POST("/:sessionId/resize", ptyController.ResizePTYSession)
 		}
 	}
 

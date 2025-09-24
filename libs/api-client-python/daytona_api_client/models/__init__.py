@@ -92,6 +92,7 @@ from daytona_api_client.models.organization_user import OrganizationUser
 from daytona_api_client.models.pty_create_request import PTYCreateRequest
 from daytona_api_client.models.pty_create_response import PTYCreateResponse
 from daytona_api_client.models.pty_list_response import PTYListResponse
+from daytona_api_client.models.pty_resize_request import PTYResizeRequest
 from daytona_api_client.models.pty_session_info import PTYSessionInfo
 from daytona_api_client.models.paginated_audit_logs import PaginatedAuditLogs
 from daytona_api_client.models.paginated_snapshots_dto import PaginatedSnapshotsDto
